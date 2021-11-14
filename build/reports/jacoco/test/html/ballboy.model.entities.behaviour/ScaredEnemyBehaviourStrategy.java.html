@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ScaredEnemyBehaviourStrategy.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ballboy2a</a> &gt; <a href="index.source.html" class="el_package">ballboy.model.entities.behaviour</a> &gt; <span class="el_source">ScaredEnemyBehaviourStrategy.java</span></div><h1>ScaredEnemyBehaviourStrategy.java</h1><pre class="source lang-java linenums">package ballboy.model.entities.behaviour;
+
+import ballboy.model.Level;
+import ballboy.model.Prototype;
+import ballboy.model.entities.DynamicEntity;
+
+/**
+ * A scared behaviour strategy that makes the entity follow accelerate away
+ * from the ballboy if within a threshold distance. A velocity cap is also
+ * applied to keep the velocity within a reasonable threshold.
+ */
+public class ScaredEnemyBehaviourStrategy implements BehaviourStrategy {
+    private static final double HORIZONTAL_ACCELERATION = 100;
+    private static final double MAX_HOR_VELOCITY = 25;
+    private static final double DISTANCE_THRESHOLD = 100;
+
+    private final Level level;
+
+<span class="fc" id="L19">    public ScaredEnemyBehaviourStrategy(Level level) {</span>
+<span class="fc" id="L20">        this.level = level;</span>
+<span class="fc" id="L21">    }</span>
+
+    @Override
+    public void behave(
+            DynamicEntity entity,
+            double frameDurationMilli) {
+<span class="fc" id="L27">        double distanceBetweenEntityAndHero = Math.abs(level.getHeroX() - entity.getPosition().getX());</span>
+
+        /*
+         If distance is below the threshold, actively accelerate away until it is not.
+         */
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (distanceBetweenEntityAndHero &lt; DISTANCE_THRESHOLD) {</span>
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">            if (entity.getPosition().isRightOf(level.getHeroX())) {</span>
+<span class="nc" id="L34">                entity.setHorizontalAcceleration(HORIZONTAL_ACCELERATION);</span>
+            } else {
+<span class="fc" id="L36">                entity.setHorizontalAcceleration(-HORIZONTAL_ACCELERATION);</span>
+            }
+<span class="fc" id="L38">            double xVel = entity.getVelocity().getX();</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">            if (Math.abs(xVel) &gt; MAX_HOR_VELOCITY) {</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">                entity.setVelocity(entity.getVelocity().setX(xVel &lt; 0 ? -MAX_HOR_VELOCITY : MAX_HOR_VELOCITY));</span>
+<span class="fc" id="L41">                entity.setHorizontalAcceleration(0);</span>
+            }
+<span class="fc" id="L43">        } else {</span>
+<span class="fc" id="L44">            entity.setHorizontalAcceleration(0);</span>
+        }
+<span class="fc" id="L46">    }</span>
+
+    @Override
+    public ScaredEnemyBehaviourStrategy copy() {
+<span class="fc" id="L50">        return new ScaredEnemyBehaviourStrategy(level);</span>
+    }
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

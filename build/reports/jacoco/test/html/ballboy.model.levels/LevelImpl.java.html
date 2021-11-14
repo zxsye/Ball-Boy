@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LevelImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ballboy2a</a> &gt; <a href="index.source.html" class="el_package">ballboy.model.levels</a> &gt; <span class="el_source">LevelImpl.java</span></div><h1>LevelImpl.java</h1><pre class="source lang-java linenums">package ballboy.model.levels;
+
+import ballboy.ConfigurationParseException;
+import ballboy.model.Entity;
+import ballboy.model.Level;
+import ballboy.model.Memento;
+import ballboy.model.entities.ControllableDynamicEntity;
+import ballboy.model.entities.DynamicEntity;
+import ballboy.model.entities.StaticEntity;
+import ballboy.model.entities.utilities.EntityListener;
+import ballboy.model.entities.utilities.Vector2D;
+import ballboy.model.factories.EntityFactory;
+import javafx.scene.paint.Color;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * Level logic, with abstract factor methods.
+ */
+public class LevelImpl implements Level, EntityListener {
+
+<span class="fc" id="L25">    private final List&lt;Entity&gt; entities = new ArrayList&lt;&gt;();</span>
+    private final PhysicsEngine engine;
+    private final EntityFactory entityFactory;
+    private ControllableDynamicEntity&lt;DynamicEntity&gt; hero;
+    private DynamicEntity squarecat; // EDITED
+
+    private Entity finish;
+
+    private double levelHeight;
+    private double levelWidth;
+    private double levelGravity;
+    private double floorHeight;
+    private Color floorColor;
+
+    private final double frameDurationMilli;
+    private boolean isFinish;
+
+<span class="fc" id="L42">    private Map&lt;String, Integer&gt; scoreMap = new HashMap&lt;&gt;();</span>
+
+    /**
+     * A callback queue for post-update jobs. This is specifically useful for scheduling jobs mid-update
+     * that require the level to be in a valid state.
+     */
+<span class="fc" id="L48">    private final Queue&lt;Runnable&gt; afterUpdateJobQueue = new ArrayDeque&lt;&gt;();</span>
+
+    public LevelImpl(
+            JSONObject levelConfiguration,
+            PhysicsEngine engine,
+            EntityFactory entityFactory,
+<span class="fc" id="L54">            double frameDurationMilli) {</span>
+<span class="fc" id="L55">        this.engine = engine;</span>
+<span class="fc" id="L56">        this.entityFactory = entityFactory;</span>
+<span class="fc" id="L57">        this.frameDurationMilli = frameDurationMilli;</span>
+<span class="fc" id="L58">        this.isFinish = false;</span>
+
+<span class="fc" id="L60">        initLevel(levelConfiguration);</span>
+<span class="fc" id="L61">    }</span>
+
+    /**
+     * Instantiates a level from the level configuration.
+     *
+     * @param levelConfiguration The configuration for the level.
+     */
+    private void initLevel(JSONObject levelConfiguration) {
+<span class="fc" id="L69">        this.levelWidth = ((Number) levelConfiguration.get(&quot;levelWidth&quot;)).doubleValue();</span>
+<span class="fc" id="L70">        this.levelHeight = ((Number) levelConfiguration.get(&quot;levelHeight&quot;)).doubleValue();</span>
+<span class="fc" id="L71">        this.levelGravity = ((Number) levelConfiguration.get(&quot;levelGravity&quot;)).doubleValue();</span>
+
+<span class="fc" id="L73">        JSONObject floorJson = (JSONObject) levelConfiguration.get(&quot;floor&quot;);</span>
+<span class="fc" id="L74">        this.floorHeight = ((Number) floorJson.get(&quot;height&quot;)).doubleValue();</span>
+<span class="fc" id="L75">        String floorColorWeb = (String) floorJson.get(&quot;color&quot;);</span>
+<span class="fc" id="L76">        this.floorColor = Color.web(floorColorWeb);</span>
+
+<span class="fc" id="L78">        JSONArray generalEntities = (JSONArray) levelConfiguration.get(&quot;genericEntities&quot;);</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        for (Object o : generalEntities) {</span>
+<span class="fc" id="L80">            this.entities.add(entityFactory.createEntity(this, (JSONObject) o));</span>
+<span class="fc" id="L81">        }</span>
+
+<span class="fc" id="L83">        JSONObject heroConfig = (JSONObject) levelConfiguration.get(&quot;hero&quot;);</span>
+<span class="fc" id="L84">        double maxVelX = ((Number) levelConfiguration.get(&quot;maxHeroVelocityX&quot;)).doubleValue();</span>
+
+<span class="fc" id="L86">        Object hero = entityFactory.createEntity(this, heroConfig);</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if (!(hero instanceof DynamicEntity)) {</span>
+<span class="nc" id="L88">            throw new ConfigurationParseException(&quot;hero must be a dynamic entity&quot;);</span>
+        }
+<span class="fc" id="L90">        DynamicEntity dynamicHero = (DynamicEntity) hero;</span>
+<span class="fc" id="L91">        Vector2D heroStartingPosition = dynamicHero.getPosition();</span>
+<span class="fc" id="L92">        this.hero = new ControllableDynamicEntity&lt;&gt;(dynamicHero, heroStartingPosition, maxVelX, floorHeight,</span>
+                levelGravity);
+<span class="fc" id="L94">        this.entities.add(this.hero);</span>
+
+        // SquareCat time!!
+<span class="fc" id="L97">        JSONObject squarecatConfig = (JSONObject) levelConfiguration.get(&quot;squarecat&quot;);</span>
+<span class="fc" id="L98">        Object squarecat = entityFactory.createEntity(this, squarecatConfig);</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        if (!(squarecat instanceof DynamicEntity)) {</span>
+<span class="nc" id="L100">            throw new ConfigurationParseException(&quot;squarecat must be a dynamic entity&quot;);</span>
+        }
+<span class="fc" id="L102">        this.squarecat = (DynamicEntity) squarecat;</span>
+<span class="fc" id="L103">        this.entities.add(this.squarecat);</span>
+
+<span class="fc" id="L105">        JSONObject finishConfig = (JSONObject) levelConfiguration.get(&quot;finish&quot;);</span>
+<span class="fc" id="L106">        this.finish = entityFactory.createEntity(this, finishConfig);</span>
+<span class="fc" id="L107">        this.entities.add(finish);</span>
+
+        // Scoreboard time
+<span class="fc" id="L110">        JSONArray scoreColours = (JSONArray) levelConfiguration.get(&quot;scoreColours&quot;);</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        for (Object o : scoreColours) {</span>
+<span class="fc" id="L112">            this.scoreMap.put((String) o, 0);</span>
+<span class="fc" id="L113">        }</span>
+<span class="fc" id="L114">    }</span>
+
+    @Override
+    public List&lt;Entity&gt; getEntities() {
+<span class="fc" id="L118">        return Collections.unmodifiableList(entities);</span>
+    }
+
+    private List&lt;DynamicEntity&gt; getDynamicEntities() {
+<span class="fc" id="L122">        return entities.stream().filter(e -&gt; e instanceof DynamicEntity).map(e -&gt; (DynamicEntity) e).collect(</span>
+<span class="fc" id="L123">                Collectors.toList());</span>
+    }
+
+    private List&lt;StaticEntity&gt; getStaticEntities() {
+<span class="fc" id="L127">        return entities.stream().filter(e -&gt; e instanceof StaticEntity).map(e -&gt; (StaticEntity) e).collect(</span>
+<span class="fc" id="L128">                Collectors.toList());</span>
+    }
+
+    @Override
+    public double getLevelHeight() {
+<span class="fc" id="L133">        return this.levelHeight;</span>
+    }
+
+    @Override
+    public double getLevelWidth() {
+<span class="fc" id="L138">        return this.levelWidth;</span>
+    }
+
+    @Override
+    public double getHeroHeight() {
+<span class="fc" id="L143">        return hero.getHeight();</span>
+    }
+
+    @Override
+    public double getHeroWidth() {
+<span class="fc" id="L148">        return hero.getWidth();</span>
+    }
+
+    @Override
+    public double getFloorHeight() {
+<span class="fc" id="L153">        return floorHeight;</span>
+    }
+
+    @Override
+    public Color getFloorColor() {
+<span class="fc" id="L158">        return floorColor;</span>
+    }
+
+    @Override
+    public double getGravity() {
+<span class="fc" id="L163">        return levelGravity;</span>
+    }
+
+    @Override
+    public void update() {
+<span class="fc" id="L168">        List&lt;DynamicEntity&gt; dynamicEntities = getDynamicEntities();</span>
+
+<span class="fc" id="L170">        dynamicEntities.stream().forEach(e -&gt; {</span>
+<span class="fc" id="L171">            e.update(frameDurationMilli, levelGravity);</span>
+<span class="fc" id="L172">        });</span>
+
+        // Collide all the dynamic entities with entities (dynamic / static)
+<span class="fc bfc" id="L175" title="All 2 branches covered.">        for (int i = 0; i &lt; dynamicEntities.size(); ++i) {</span>
+<span class="fc" id="L176">            DynamicEntity dynamicEntityA = dynamicEntities.get(i);</span>
+
+            // Dynamic
+<span class="fc bfc" id="L179" title="All 2 branches covered.">            for (int j = i + 1; j &lt; dynamicEntities.size(); ++j) {</span>
+<span class="fc" id="L180">                DynamicEntity dynamicEntityB = dynamicEntities.get(j);</span>
+
+<span class="fc bfc" id="L182" title="All 2 branches covered.">                if (dynamicEntityA.collidesWith(dynamicEntityB)) {</span>
+<span class="fc" id="L183">                    dynamicEntityA.collideWith(dynamicEntityB);</span>
+<span class="fc" id="L184">                    dynamicEntityB.collideWith(dynamicEntityA);</span>
+<span class="pc bpc" id="L185" title="1 of 4 branches missed.">                    if (!isHero(dynamicEntityA) &amp;&amp; !isHero(dynamicEntityB) &amp;&amp;</span>
+<span class="pc bpc" id="L186" title="1 of 4 branches missed.">                        !isSquarecat(dynamicEntityA) &amp;&amp; !isSquarecat(dynamicEntityB)) {</span>
+<span class="fc" id="L187">                        engine.resolveCollision(dynamicEntityA, dynamicEntityB);</span>
+                    }
+                }
+            }
+            // Static
+<span class="fc bfc" id="L192" title="All 2 branches covered.">            for (StaticEntity staticEntity : getStaticEntities()) {</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">                if (dynamicEntityA.collidesWith(staticEntity)) {</span>
+<span class="fc" id="L194">                    dynamicEntityA.collideWith(staticEntity);</span>
+<span class="pc bpc" id="L195" title="1 of 4 branches missed.">                    if (isHero(dynamicEntityA) &amp;&amp; isFinish(staticEntity)) {</span>
+<span class="nc" id="L196">                        System.out.println(&quot;LEVEL FINISH&quot;);</span>
+                    }
+<span class="fc bfc" id="L198" title="All 2 branches covered.">                    if (!isSquarecat(dynamicEntityA)) {</span>
+<span class="fc" id="L199">                        engine.resolveCollision(dynamicEntityA, staticEntity, this);</span>
+                    }
+                }
+<span class="fc" id="L202">            }</span>
+        }
+
+<span class="fc" id="L205">        dynamicEntities.stream().forEach(e -&gt; engine.enforceWorldLimits(e, this));</span>
+
+<span class="fc" id="L207">        afterUpdateJobQueue.forEach(j -&gt; j.run());</span>
+<span class="fc" id="L208">        afterUpdateJobQueue.clear();</span>
+
+<span class="fc" id="L210">    }</span>
+
+    @Override
+    public double getHeroX() {
+<span class="fc" id="L214">        return hero.getPosition().getX();</span>
+    }
+
+    @Override
+    public double getHeroY() {
+<span class="fc" id="L219">        return hero.getPosition().getY();</span>
+    }
+
+    @Override
+    public boolean boostHeight() {
+<span class="fc" id="L224">        return hero.boostHeight();</span>
+    }
+
+    @Override
+    public boolean dropHeight() {
+<span class="nc" id="L229">        return hero.dropHeight();</span>
+    }
+
+    @Override
+    public boolean moveLeft() {
+<span class="fc" id="L234">        return hero.moveLeft();</span>
+    }
+
+    @Override
+    public boolean moveRight() {
+<span class="fc" id="L239">        return hero.moveRight();</span>
+    }
+
+    @Override
+    public boolean isHero(Entity entity) {
+<span class="fc bfc" id="L244" title="All 2 branches covered.">        return entity == hero;</span>
+    }
+
+    @Override
+    public boolean isFinish(Entity entity) {
+<span class="fc bfc" id="L249" title="All 2 branches covered.">        return this.finish == entity;</span>
+    }
+
+    /**
+     * EDITED
+     *
+     * @param entity - The entity to be checked.
+     * @return boolean True if the provided entity is the current squarecat.
+     */
+    @Override
+    public boolean isSquarecat(Entity entity) {
+<span class="fc bfc" id="L260" title="All 2 branches covered.">        return this.squarecat == entity;</span>
+    }
+
+    @Override
+    public void resetHero() {
+<span class="fc" id="L265">        afterUpdateJobQueue.add(() -&gt; this.hero.reset());</span>
+<span class="fc" id="L266">    }</span>
+
+    /**
+     * EDITED
+     *
+     * @param entity - entity to be deleted
+     */
+    @Override
+    public void queueDeleteEntity(Entity entity) {
+<span class="fc" id="L275">        afterUpdateJobQueue.add(() -&gt; this.entities.remove(entity));</span>
+<span class="fc" id="L276">    }</span>
+
+    @Override
+    public boolean isLevelFinish() {
+<span class="fc" id="L280">        return isFinish;</span>
+    }
+
+    public void finish() {
+//        Platform.exit();
+<span class="fc" id="L285">        isFinish = true;</span>
+<span class="fc" id="L286">    }</span>
+
+    /**
+     * @return Version of this instance that is EntityListener, otherwise null
+     */
+    @Override
+    public EntityListener getListener() {
+<span class="fc" id="L293">        return this;</span>
+    }
+
+    @Override
+    public void updateFromNotifier(String colour, Integer pointUpdate) {
+<span class="pc bpc" id="L298" title="1 of 2 branches missed.">        if (scoreMap.containsKey(colour)) {</span>
+<span class="fc" id="L299">            Integer newScore = scoreMap.get(colour) + pointUpdate;</span>
+<span class="fc" id="L300">            scoreMap.put(colour, newScore);</span>
+        }
+
+<span class="fc" id="L303">    }</span>
+
+    @Override
+    public String getScoreString() {
+<span class="fc" id="L307">        StringBuilder sb = new StringBuilder();</span>
+<span class="fc bfc" id="L308" title="All 2 branches covered.">        for (String key : scoreMap.keySet()) {</span>
+<span class="fc" id="L309">            sb.append(key + &quot;  &quot;);</span>
+<span class="fc" id="L310">            sb.append(scoreMap.get(key));</span>
+<span class="fc" id="L311">            sb.append(&quot;\n&quot;);</span>
+<span class="fc" id="L312">        }</span>
+<span class="fc" id="L313">        return sb.toString();</span>
+    }
+
+    @Override
+    public Integer getTotalScore() {
+
+<span class="fc" id="L319">        Integer sum = 0;</span>
+<span class="fc bfc" id="L320" title="All 2 branches covered.">        for (Integer i : scoreMap.values()) {</span>
+<span class="fc" id="L321">            sum += i;</span>
+<span class="fc" id="L322">        }</span>
+<span class="fc" id="L323">        return sum;</span>
+    }
+
+    @Override
+    public Memento saveLevelState() {
+<span class="fc" id="L328">        return new LevelMemento(this);</span>
+    }
+
+    public static class LevelMemento implements Memento {
+    
+        private final LevelImpl level;
+        
+<span class="fc" id="L335">        private final List&lt;Entity&gt; entities = new ArrayList&lt;&gt;();</span>
+        private ControllableDynamicEntity&lt;DynamicEntity&gt; hero;
+        private DynamicEntity squarecat; // EDITED
+    
+        private Entity finish;
+    
+        private final double levelHeight;
+        private final double levelWidth;
+        private final double levelGravity;
+        private final double floorHeight;
+        private final Color floorColor;
+    
+        private final boolean isFinish;
+    
+<span class="fc" id="L349">        private final Map&lt;String, Integer&gt; scoreMap = new HashMap&lt;&gt;();</span>
+        
+<span class="fc" id="L351">        public LevelMemento(LevelImpl level) {</span>
+<span class="fc" id="L352">            this.level = level;</span>
+    
+//            LevelImpl this = new LevelImpl(
+//                    level.engine.copy(),
+//                    level.frameDurationMilli,
+//                    level.entityFactory); // same entityFactory is sufficient
+    
+<span class="fc" id="L359">            this.levelHeight = level.levelHeight;</span>
+<span class="fc" id="L360">            this.levelWidth = level.levelWidth;</span>
+<span class="fc" id="L361">            this.levelGravity = level.levelGravity;</span>
+<span class="fc" id="L362">            this.floorHeight = level.floorHeight;</span>
+<span class="fc" id="L363">            this.floorColor = Color.web(level.floorColor.toString());</span>
+<span class="fc" id="L364">            this.isFinish = level.isFinish;</span>
+
+<span class="fc bfc" id="L366" title="All 2 branches covered.">            for (String key : level.scoreMap.keySet()) {</span>
+<span class="fc" id="L367">                this.scoreMap.put(key, level.scoreMap.get(key));</span>
+<span class="fc" id="L368">            }</span>
+    
+<span class="fc bfc" id="L370" title="All 2 branches covered.">            for (Entity entity : level.entities) {</span>
+<span class="fc bfc" id="L371" title="All 2 branches covered.">                if (level.isHero(entity)) {</span>
+<span class="fc" id="L372">                    this.hero = level.hero.copy();</span>
+//                    this.entities.add(this.hero);
+    
+<span class="fc bfc" id="L375" title="All 2 branches covered.">                } else if (level.isFinish(entity)) {</span>
+<span class="fc" id="L376">                    this.finish = level.finish.copy();</span>
+//                    this.entities.add(this.finish);
+    
+<span class="fc bfc" id="L379" title="All 2 branches covered.">                } else if (level.isSquarecat(entity)) {</span>
+<span class="fc" id="L380">                    this.squarecat = level.squarecat.copy();</span>
+//                    this.entities.add(this.squarecat);
+    
+                } else {
+<span class="fc" id="L384">                    this.entities.add(entity.copy());</span>
+                }
+    
+<span class="fc" id="L387">            }</span>
+<span class="fc" id="L388">        }</span>
+        
+        /**
+         * Restore saved gamestate to the attached GameEngine
+         */
+        @Override
+        public void restore() {
+<span class="fc" id="L395">            level.afterUpdateJobQueue.clear();</span>
+<span class="fc" id="L396">            level.entities.clear();</span>
+
+<span class="fc" id="L398">            level.levelHeight = this.levelHeight;</span>
+<span class="fc" id="L399">            level.levelWidth = this.levelWidth;</span>
+<span class="fc" id="L400">            level.levelGravity = this.levelGravity;</span>
+<span class="fc" id="L401">            level.floorHeight = this.floorHeight;</span>
+<span class="fc" id="L402">            level.floorColor = Color.web(this.floorColor.toString());</span>
+<span class="fc" id="L403">            level.isFinish = this.isFinish;</span>
+
+<span class="fc bfc" id="L405" title="All 2 branches covered.">            for (String key : this.scoreMap.keySet()) {</span>
+<span class="fc" id="L406">                level.scoreMap.put(key, this.scoreMap.get(key));</span>
+<span class="fc" id="L407">            }</span>
+
+<span class="fc bfc" id="L409" title="All 2 branches covered.">            for (Entity entity : this.entities) {</span>
+<span class="fc" id="L410">                level.entities.add(entity.copy());</span>
+<span class="fc" id="L411">            }</span>
+
+            // Add in special entities
+<span class="fc" id="L414">            level.hero = this.hero.copy();</span>
+<span class="fc" id="L415">            level.finish = this.finish.copy();</span>
+<span class="fc" id="L416">            level.squarecat = this.squarecat.copy();</span>
+
+<span class="fc" id="L418">            level.entities.add(level.hero);</span>
+<span class="fc" id="L419">            level.entities.add(level.finish);</span>
+<span class="fc" id="L420">            level.entities.add(level.squarecat);</span>
+
+
+<span class="fc" id="L423">        }</span>
+    }
+    
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

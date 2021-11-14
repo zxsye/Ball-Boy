@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DynamicEntityImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ballboy2a</a> &gt; <a href="index.source.html" class="el_package">ballboy.model.entities</a> &gt; <span class="el_source">DynamicEntityImpl.java</span></div><h1>DynamicEntityImpl.java</h1><pre class="source lang-java linenums">package ballboy.model.entities;
+
+import ballboy.model.Entity;
+import ballboy.model.entities.behaviour.BehaviourStrategy;
+import ballboy.model.entities.collision.CollisionStrategy;
+import ballboy.model.entities.utilities.*;
+import javafx.scene.image.Image;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class DynamicEntityImpl extends DynamicEntity {
+    private final CollisionStrategy collisionStrategy;
+    private final BehaviourStrategy behaviourStrategy;
+    private final AxisAlignedBoundingBox volume;
+    private final Layer layer;
+    private final Image image;
+    private final KinematicState kinematicState;
+
+    private List&lt;EntityListener&gt; listenerList;
+
+    public DynamicEntityImpl(
+            KinematicState kinematicState,
+            AxisAlignedBoundingBox volume,
+            Layer layer,
+            Image image,
+            CollisionStrategy collisionStrategy,
+            BehaviourStrategy behaviourStrategy
+<span class="fc" id="L29">    ) {</span>
+<span class="fc" id="L30">        this.kinematicState = kinematicState;</span>
+<span class="fc" id="L31">        this.volume = volume;</span>
+<span class="fc" id="L32">        this.layer = layer;</span>
+<span class="fc" id="L33">        this.image = image;</span>
+<span class="fc" id="L34">        this.collisionStrategy = collisionStrategy;</span>
+<span class="fc" id="L35">        this.behaviourStrategy = behaviourStrategy;</span>
+
+<span class="fc" id="L37">        this.listenerList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L38">    }</span>
+
+    @Override
+    public Image getImage() {
+<span class="fc" id="L42">        return this.image;</span>
+    }
+
+    @Override
+    public Vector2D getPosition() {
+<span class="fc" id="L47">        return kinematicState.getPosition();</span>
+    }
+
+    @Override
+    public void setPosition(Vector2D pos) {
+<span class="fc" id="L52">        this.kinematicState.setPosition(pos);</span>
+<span class="fc" id="L53">    }</span>
+
+    @Override
+    public Vector2D getPositionBeforeLastUpdate() {
+<span class="fc" id="L57">        return this.kinematicState.getPreviousPosition();</span>
+    }
+
+    @Override
+    public Vector2D getVelocity() {
+<span class="fc" id="L62">        return this.kinematicState.getVelocity();</span>
+    }
+
+    @Override
+    public void setVelocity(Vector2D vel) {
+<span class="fc" id="L67">        this.kinematicState.setVelocity(vel);</span>
+<span class="fc" id="L68">    }</span>
+
+    @Override
+    public double getHorizontalAcceleration() {
+<span class="fc" id="L72">        return this.kinematicState.getHorizontalAcceleration();</span>
+    }
+
+    @Override
+    public void setHorizontalAcceleration(double horizontalAcceleration) {
+<span class="fc" id="L77">        this.kinematicState.setHorizontalAcceleration(horizontalAcceleration);</span>
+<span class="fc" id="L78">    }</span>
+
+    @Override
+    public double getHeight() {
+<span class="fc" id="L82">        return volume.getHeight();</span>
+    }
+
+    @Override
+    public double getWidth() {
+<span class="fc" id="L87">        return volume.getWidth();</span>
+    }
+
+    @Override
+    public Layer getLayer() {
+<span class="fc" id="L92">        return this.layer;</span>
+    }
+
+    @Override
+    public boolean collidesWith(Entity entity) {
+<span class="fc" id="L97">        return volume.collidesWith(entity.getVolume());</span>
+    }
+
+    @Override
+    public AxisAlignedBoundingBox getVolume() {
+<span class="fc" id="L102">        return this.volume;</span>
+    }
+
+    @Override
+    public void collideWith(Entity entity) {
+<span class="fc" id="L107">        collisionStrategy.collideWith(this, entity);</span>
+<span class="fc" id="L108">    }</span>
+
+    @Override
+    public void update(
+            double milliSeconds,
+            double levelGravity) {
+<span class="fc" id="L114">        kinematicState.update(milliSeconds, levelGravity);</span>
+//        System.out.println(&quot;behaving&quot;);
+<span class="fc" id="L116">        behaviourStrategy.behave(this, milliSeconds);</span>
+<span class="fc" id="L117">        this.volume.setTopLeft(this.kinematicState.getPosition());</span>
+<span class="fc" id="L118">    }</span>
+
+    /**
+     * Updates all listeners, informing them of colour and pointupdate
+     * @param colour
+     * @param pointUpdate
+     */
+    @Override
+    public void notifyAllListeners(String colour, Integer pointUpdate) {
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        for (EntityListener listener: this.listenerList) {</span>
+<span class="fc" id="L128">            listener.updateFromNotifier(colour, pointUpdate);</span>
+<span class="fc" id="L129">        }</span>
+<span class="fc" id="L130">    }</span>
+
+    /**
+     * @return Version of this Entity as a EntityNotifier
+     */
+    @Override
+    public EntityNotifier getNotifier() {
+<span class="fc" id="L137">        return this;</span>
+    }
+
+    @Override
+    public void attach(EntityListener listener) {
+<span class="fc" id="L142">        this.listenerList.add(listener);</span>
+<span class="fc" id="L143">    }</span>
+
+    @Override
+    public void detach(EntityListener listener) {
+<span class="nc" id="L147">        this.listenerList.remove(listener);</span>
+<span class="nc" id="L148">    }</span>
+
+
+    public DynamicEntity copy() {
+
+<span class="fc" id="L153">        DynamicEntityImpl copy = new DynamicEntityImpl(</span>
+<span class="fc" id="L154">                this.kinematicState.copy(),</span>
+<span class="fc" id="L155">                this.volume.copy(),</span>
+                layer,
+<span class="fc" id="L157">                new Image(image.getUrl()), // @TODO: not sure if this works</span>
+<span class="fc" id="L158">                this.collisionStrategy.copy(),</span>
+<span class="fc" id="L159">                this.behaviourStrategy.copy()</span>
+        );
+
+<span class="fc bfc" id="L162" title="All 2 branches covered.">        for (EntityListener listener : this.listenerList) {</span>
+<span class="fc" id="L163">            copy.attach(listener);</span>
+<span class="fc" id="L164">        }</span>
+<span class="fc" id="L165">        return copy;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StaticEntityFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ballboy2a</a> &gt; <a href="index.source.html" class="el_package">ballboy.model.factories</a> &gt; <span class="el_source">StaticEntityFactory.java</span></div><h1>StaticEntityFactory.java</h1><pre class="source lang-java linenums">package ballboy.model.factories;
+
+import ballboy.ConfigurationParseException;
+import ballboy.model.Entity;
+import ballboy.model.Level;
+import ballboy.model.entities.StaticEntityImpl;
+import ballboy.model.entities.utilities.AxisAlignedBoundingBox;
+import ballboy.model.entities.utilities.AxisAlignedBoundingBoxImpl;
+import ballboy.model.entities.utilities.Vector2D;
+import javafx.scene.image.Image;
+import org.json.simple.JSONObject;
+
+import java.util.Optional;
+
+/*
+ * Concrete entity factory for StaticEntityImpl objects.
+ */
+public class StaticEntityFactory implements EntityFactory {
+    private final Entity.Layer layer;
+
+<span class="fc" id="L21">    public StaticEntityFactory(Entity.Layer layer) {</span>
+<span class="fc" id="L22">        this.layer = layer;</span>
+<span class="fc" id="L23">    }</span>
+
+    @Override
+    public Entity createEntity(
+            Level level,
+            JSONObject config) {
+        try {
+<span class="fc" id="L30">            double startX = ((Number) config.get(&quot;posX&quot;)).doubleValue();</span>
+<span class="fc" id="L31">            double startY = ((Number) config.get(&quot;posY&quot;)).doubleValue();</span>
+<span class="fc" id="L32">            Optional&lt;Double&gt; height = Optional.ofNullable(((Number) config.get(&quot;height&quot;))).map(Number::doubleValue);</span>
+
+<span class="fc" id="L34">            String imageName = (String) config.getOrDefault(&quot;image&quot;, &quot;blank.png&quot;);</span>
+
+<span class="fc" id="L36">            Vector2D startingPosition = new Vector2D(startX, startY);</span>
+
+<span class="fc" id="L38">            Image image = new Image(imageName);</span>
+
+<span class="fc" id="L40">            AxisAlignedBoundingBox volume = new AxisAlignedBoundingBoxImpl(</span>
+                    startingPosition,
+<span class="fc" id="L42">                    height.orElse(image.getHeight()),</span>
+<span class="fc" id="L43">                    height.map(h -&gt; h * image.getWidth() / image.getHeight()).orElse(image.getWidth())</span>
+            );
+
+<span class="fc" id="L46">            return new StaticEntityImpl(</span>
+                    volume,
+                    layer,
+                    image
+            );
+
+<span class="nc" id="L52">        } catch (Exception e) {</span>
+<span class="nc" id="L53">            throw new ConfigurationParseException(</span>
+<span class="nc" id="L54">                    String.format(&quot;Invalid static entity configuration | %s | %s&quot;, config, e));</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

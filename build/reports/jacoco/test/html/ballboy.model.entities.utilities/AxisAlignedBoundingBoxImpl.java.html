@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AxisAlignedBoundingBoxImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ballboy2a</a> &gt; <a href="index.source.html" class="el_package">ballboy.model.entities.utilities</a> &gt; <span class="el_source">AxisAlignedBoundingBoxImpl.java</span></div><h1>AxisAlignedBoundingBoxImpl.java</h1><pre class="source lang-java linenums">package ballboy.model.entities.utilities;
+
+import ballboy.model.Prototype;
+
+/**
+ * Standard implementation of an AxisAlignedBoundingBox, with O(1) time
+ * collidesWith and containsPoint implementations.
+ */
+public class AxisAlignedBoundingBoxImpl implements AxisAlignedBoundingBox, Prototype {
+    private final double width;
+    private final double height;
+    private Vector2D topLeft;
+
+    public AxisAlignedBoundingBoxImpl(
+            Vector2D topLeft,
+            double height,
+<span class="fc" id="L17">            double width) {</span>
+<span class="fc" id="L18">        this.width = width;</span>
+<span class="fc" id="L19">        this.height = height;</span>
+<span class="fc" id="L20">        this.topLeft = topLeft;</span>
+<span class="fc" id="L21">    }</span>
+
+    @Override
+    public double getWidth() {
+<span class="fc" id="L25">        return width;</span>
+    }
+
+    @Override
+    public double getHeight() {
+<span class="fc" id="L30">        return height;</span>
+    }
+
+    @Override
+    public double getLeftX() {
+<span class="fc" id="L35">        return topLeft.getX();</span>
+    }
+
+    @Override
+    public double getRightX() {
+<span class="fc" id="L40">        return topLeft.getX() + width;</span>
+    }
+
+    @Override
+    public double getTopY() {
+<span class="fc" id="L45">        return topLeft.getY();</span>
+    }
+
+    @Override
+    public double getBottomY() {
+<span class="fc" id="L50">        return topLeft.getY() + height;</span>
+    }
+
+    @Override
+    public void setTopLeft(Vector2D topLeft) {
+<span class="fc" id="L55">        this.topLeft = topLeft;</span>
+<span class="fc" id="L56">    }</span>
+
+    @Override
+    public boolean collidesWith(AxisAlignedBoundingBox box) {
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        return getLeftX() &lt; box.getRightX() &amp;&amp;</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">                getRightX() &gt; box.getLeftX() &amp;&amp;</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">                getBottomY() &gt; box.getTopY() &amp;&amp;</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">                getTopY() &lt; box.getBottomY();</span>
+    }
+
+    @Override
+    public boolean containsPoint(Vector2D point) {
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        return point.isRightOf(getLeftX()) &amp;&amp;</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">                point.isLeftOf(getRightX()) &amp;&amp;</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">                point.isAbove(getBottomY()) &amp;&amp;</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">                point.isBelow(getTopY());</span>
+    }
+
+    @Override
+    public AxisAlignedBoundingBoxImpl copy() {
+<span class="fc" id="L76">        return new AxisAlignedBoundingBoxImpl(</span>
+<span class="fc" id="L77">                topLeft.copy(),</span>
+                height,
+                width
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

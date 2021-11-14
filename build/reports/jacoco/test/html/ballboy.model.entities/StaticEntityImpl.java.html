@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StaticEntityImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ballboy2a</a> &gt; <a href="index.source.html" class="el_package">ballboy.model.entities</a> &gt; <span class="el_source">StaticEntityImpl.java</span></div><h1>StaticEntityImpl.java</h1><pre class="source lang-java linenums">package ballboy.model.entities;
+
+import ballboy.model.Entity;
+import ballboy.model.Prototype;
+import ballboy.model.entities.utilities.AxisAlignedBoundingBox;
+import ballboy.model.entities.utilities.AxisAlignedBoundingBoxImpl;
+import ballboy.model.entities.utilities.EntityNotifier;
+import ballboy.model.entities.utilities.Vector2D;
+import javafx.scene.image.Image;
+
+/**
+ * A static entity.
+ */
+public class StaticEntityImpl extends StaticEntity {
+    private final AxisAlignedBoundingBox volume;
+    private final Entity.Layer layer;
+    private final Image image;
+
+    public StaticEntityImpl(
+            AxisAlignedBoundingBox volume,
+            Entity.Layer layer,
+            Image image
+<span class="fc" id="L23">    ) {</span>
+<span class="fc" id="L24">        this.volume = volume;</span>
+<span class="fc" id="L25">        this.layer = layer;</span>
+<span class="fc" id="L26">        this.image = image;</span>
+<span class="fc" id="L27">    }</span>
+
+    @Override
+    public Image getImage() {
+<span class="fc" id="L31">        return this.image;</span>
+    }
+
+    @Override
+    public Vector2D getPosition() {
+<span class="fc" id="L36">        return new Vector2D(volume.getLeftX(), volume.getTopY());</span>
+    }
+
+    @Override
+    public double getHeight() {
+<span class="fc" id="L41">        return volume.getHeight();</span>
+    }
+
+    @Override
+    public double getWidth() {
+<span class="fc" id="L46">        return volume.getWidth();</span>
+    }
+
+    @Override
+    public Entity.Layer getLayer() {
+<span class="fc" id="L51">        return this.layer;</span>
+    }
+
+    @Override
+    public AxisAlignedBoundingBox getVolume() {
+<span class="fc" id="L56">        return this.volume;</span>
+    }
+
+    /**
+     * @return Version of this Entity as a EntityNotifier
+     */
+    @Override
+    public EntityNotifier getNotifier() {
+<span class="nc" id="L64">        return null;</span>
+    }
+
+    @Override
+    public StaticEntity copy() {
+
+<span class="fc" id="L70">        return new StaticEntityImpl(</span>
+                new AxisAlignedBoundingBoxImpl(
+<span class="fc" id="L72">                        new Vector2D(volume.getLeftX(), volume.getTopY()),</span>
+<span class="fc" id="L73">                        volume.getHeight(),</span>
+<span class="fc" id="L74">                        volume.getWidth()),</span>
+                layer,
+<span class="fc" id="L76">                new Image(image.getUrl()) // @TODO: not sure if this works</span>
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

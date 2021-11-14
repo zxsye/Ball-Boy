@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="ballboy.LevelTest" tests="24" skipped="0" failures="0" errors="0" timestamp="2021-11-13T13:32:09" hostname="zi-lins-air.staff.sydney.edu.au" time="34.495">
+  <properties/>
+  <testcase name="floatingCloudBehaviourStrategyTest()" classname="ballboy.LevelTest" time="1.674"/>
+  <testcase name="scaredEnemyBehaviourStrategyTest()" classname="ballboy.LevelTest" time="1.144"/>
+  <testcase name="badBehaviourConfig()" classname="ballboy.LevelTest" time="1.185"/>
+  <testcase name="GameWindow()" classname="ballboy.LevelTest" time="2.013"/>
+  <testcase name="gameEngineFinishLevel()" classname="ballboy.LevelTest" time="1.436"/>
+  <testcase name="moveLeftRight()" classname="ballboy.LevelTest" time="1.33"/>
+  <testcase name="totalScore()" classname="ballboy.LevelTest" time="1.376"/>
+  <testcase name="levelHeroGravity()" classname="ballboy.LevelTest" time="1.554"/>
+  <testcase name="physicsEngineEnemyEnemyCollision()" classname="ballboy.LevelTest" time="1.203"/>
+  <testcase name="squarecatKillEnemy()" classname="ballboy.LevelTest" time="1.57"/>
+  <testcase name="finishCurrentLevel()" classname="ballboy.LevelTest" time="1.45"/>
+  <testcase name="initLevelTest()" classname="ballboy.LevelTest" time="1.436"/>
+  <testcase name="BadFactoryTest()" classname="ballboy.LevelTest" time="1.349"/>
+  <testcase name="physicsEngineStaticCollision()" classname="ballboy.LevelTest" time="1.615"/>
+  <testcase name="trivialChecks()" classname="ballboy.LevelTest" time="1.339"/>
+  <testcase name="squarecatBehaviourStrategyTest()" classname="ballboy.LevelTest" time="1.418"/>
+  <testcase name="badConfig()" classname="ballboy.LevelTest" time="1.419"/>
+  <testcase name="aggressiveEnemyBehaviourStrategyTest()" classname="ballboy.LevelTest" time="1.32"/>
+  <testcase name="boostHeight()" classname="ballboy.LevelTest" time="1.261"/>
+  <testcase name="passiveEntityBehaviourStrategyTest()" classname="ballboy.LevelTest" time="1.233"/>
+  <testcase name="levelHeroBounceOffRock()" classname="ballboy.LevelTest" time="1.089"/>
+  <testcase name="FactoryTest()" classname="ballboy.LevelTest" time="1.425"/>
+  <testcase name="checkSaveState()" classname="ballboy.LevelTest" time="2.094"/>
+  <testcase name="resetHero()" classname="ballboy.LevelTest" time="1.366"/>
+  <system-out><![CDATA[-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+-10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+10.0
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

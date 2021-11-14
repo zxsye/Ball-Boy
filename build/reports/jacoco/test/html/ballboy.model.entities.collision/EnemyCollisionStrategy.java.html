@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EnemyCollisionStrategy.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ballboy2a</a> &gt; <a href="index.source.html" class="el_package">ballboy.model.entities.collision</a> &gt; <span class="el_source">EnemyCollisionStrategy.java</span></div><h1>EnemyCollisionStrategy.java</h1><pre class="source lang-java linenums">package ballboy.model.entities.collision;
+
+import ballboy.model.Entity;
+import ballboy.model.Level;
+import ballboy.model.Prototype;
+import ballboy.model.entities.utilities.EntityNotifier;
+
+/**
+ * Collision logic for enemies.
+ */
+public class EnemyCollisionStrategy implements CollisionStrategy {
+    private final Level level;
+    private final String colour;
+
+<span class="fc" id="L15">    public EnemyCollisionStrategy(Level level, String colour) {</span>
+<span class="fc" id="L16">        this.level = level;</span>
+<span class="fc" id="L17">        this.colour = colour;</span>
+<span class="fc" id="L18">    }</span>
+
+    @Override
+    public void collideWith(
+            Entity enemy,
+            Entity hitEntity) {
+
+<span class="fc bfc" id="L25" title="All 2 branches covered.">        if (level.isHero(hitEntity)) {</span>
+<span class="fc" id="L26">            level.resetHero();</span>
+
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        } else if (level.isSquarecat(hitEntity)) {</span>
+<span class="fc" id="L29">            EntityNotifier notifier = enemy.getNotifier();</span>
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">            if (notifier != null) {</span>
+<span class="fc" id="L31">                notifier.notifyAllListeners(colour, 100);</span>
+            }
+<span class="fc" id="L33">            level.queueDeleteEntity(enemy);</span>
+        }
+<span class="fc" id="L35">    }</span>
+
+    @Override
+    public EnemyCollisionStrategy copy() {
+<span class="fc" id="L39">        return new EnemyCollisionStrategy(level, this.colour);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ControllableDynamicEntity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ballboy2a</a> &gt; <a href="index.source.html" class="el_package">ballboy.model.entities</a> &gt; <span class="el_source">ControllableDynamicEntity.java</span></div><h1>ControllableDynamicEntity.java</h1><pre class="source lang-java linenums">package ballboy.model.entities;
+
+import ballboy.model.Entity;
+import ballboy.model.Prototype;
+import ballboy.model.entities.utilities.AxisAlignedBoundingBox;
+import ballboy.model.entities.utilities.EntityNotifier;
+import ballboy.model.entities.utilities.ProjectileKinematicsUtil;
+import ballboy.model.entities.utilities.Vector2D;
+import javafx.scene.image.Image;
+
+import javax.naming.ldap.Control;
+import java.util.Optional;
+
+/**
+ * Wrapper class to provide game controls to a DynamicEntity.
+ *
+ * @param &lt;T&gt; The entity class being controlled.
+ */
+public class ControllableDynamicEntity&lt;T extends DynamicEntity&gt; extends DynamicEntity {
+    private static final double LEFT_ACC = -200;
+
+    private final T entity;
+    private final double maxHorizontalVelocity;
+    private final double floorHeight;
+    private final double gravity;
+    private final Vector2D startingPosition;
+
+<span class="fc" id="L28">    private Optional&lt;Runnable&gt; afterNextBounce = Optional.empty();</span>
+
+    public ControllableDynamicEntity(
+            T entity,
+            Vector2D startingPosition,
+            double maxHorizontalVelocity,
+            double floorHeight,
+<span class="fc" id="L35">            double gravity) {</span>
+<span class="fc" id="L36">        this.entity = entity;</span>
+<span class="fc" id="L37">        this.maxHorizontalVelocity = Math.abs(maxHorizontalVelocity);</span>
+<span class="fc" id="L38">        this.floorHeight = Math.abs(floorHeight);</span>
+<span class="fc" id="L39">        this.gravity = gravity;</span>
+<span class="fc" id="L40">        this.startingPosition = startingPosition;</span>
+<span class="fc" id="L41">    }</span>
+
+    /**
+     * @return int The hashcode of the wrapped entity instance.
+     */
+    @Override
+    public int hashCode() {
+<span class="nc" id="L48">        return entity.hashCode();</span>
+    }
+
+    /**
+     * Sets the vertical velocity of the current entity to a value that will increase its vertical bounce height
+     * relative to the floor by a fixed amount.
+     *
+     * @return boolean True if boost was successfully applied.
+     */
+    public boolean boostHeight() {
+
+<span class="fc" id="L59">        double deltaToMax = -ProjectileKinematicsUtil.getDeltaToMaxHeight(-this.entity.getVelocity().getY(), -gravity);</span>
+<span class="fc" id="L60">        double currentHeight = floorHeight - this.entity.getPosition().getY();</span>
+<span class="fc" id="L61">        double currentBounceHeight = deltaToMax + currentHeight;</span>
+<span class="fc" id="L62">        double newBounceHeight = currentBounceHeight * 2;</span>
+<span class="fc" id="L63">        double newDeltaToMax = Math.min(newBounceHeight - currentBounceHeight, floorHeight * 0.98 - currentHeight);</span>
+<span class="fc" id="L64">        double newVelYCart = ProjectileKinematicsUtil.getCurrentVelocityForMaxHeight(newDeltaToMax, gravity);</span>
+
+        /*
+         * NaN in the instance when the equation doesn't have a real solution. This will occur if the
+         * entity is within epsilon of the max height (level height)
+         */
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">        if (Double.isNaN(newVelYCart)) {</span>
+<span class="nc" id="L71">            return false;</span>
+        }
+
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if (this.getVelocity().getY() &gt; 0) { // traveling down</span>
+<span class="fc" id="L75">            this.entity.setVelocity(this.entity.getVelocity().setY(newVelYCart));</span>
+        } else { // travelling up
+<span class="fc" id="L77">            this.entity.setVelocity(this.entity.getVelocity().setY(-newVelYCart));</span>
+        }
+
+<span class="fc" id="L80">        return true;</span>
+    }
+
+    /**
+     * Sets the vertical velocity of the current entity to a value that decreases the current bounce height by a fixed
+     * value.
+     *
+     * @return boolean True if the bounce height of the current entity was successfully reduced.
+     */
+    public boolean dropHeight() {
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (afterNextBounce.isPresent()) {</span>
+<span class="nc" id="L91">            return false;</span>
+        }
+
+<span class="nc" id="L94">        afterNextBounce = Optional.of(() -&gt; {</span>
+<span class="nc" id="L95">            double bounceHeight = ProjectileKinematicsUtil.getDeltaToMaxHeight(-this.entity.getVelocity().getY(),</span>
+                    -gravity);
+<span class="nc" id="L97">            double yVelCart = ProjectileKinematicsUtil.getCurrentVelocityForMaxHeight(bounceHeight * 0.5, -gravity);</span>
+<span class="nc" id="L98">            this.entity.setVelocity(this.entity.getVelocity().setY(-yVelCart));</span>
+<span class="nc" id="L99">        });</span>
+
+<span class="nc" id="L101">        return true;</span>
+    }
+
+    /**
+     * Applies a horizontal acceleration in the left direction until a maximum velocity is reached.
+     *
+     * @return boolean True if the entity was successfully moved left.
+     */
+    public boolean moveLeft() {
+<span class="fc" id="L110">        entity.setHorizontalAcceleration(LEFT_ACC);</span>
+<span class="fc" id="L111">        return true;</span>
+    }
+
+    /**
+     * Applies a horizontal acceleration in the right direction until a maximum velocity is reached.
+     *
+     * @return boolean True if the entity was successfully moved right.
+     */
+    public boolean moveRight() {
+<span class="fc" id="L120">        entity.setHorizontalAcceleration(-LEFT_ACC);</span>
+<span class="fc" id="L121">        return true;</span>
+    }
+
+    /**
+     * Resets the current state to its state when the current instance was instantiated.
+     * The entity is moved back to its starting position, and the control inputs are reset.
+     *
+     * @return boolean True if the state was successfully reset.
+     */
+    public boolean reset() {
+<span class="fc" id="L131">        entity.setVelocity(Vector2D.ZERO);</span>
+<span class="fc" id="L132">        entity.setPosition(startingPosition);</span>
+<span class="fc" id="L133">        entity.setHorizontalAcceleration(0);</span>
+<span class="fc" id="L134">        return true;</span>
+    }
+
+    @Override
+    public boolean collidesWith(Entity e) {
+<span class="fc" id="L139">        return entity.collidesWith(e);</span>
+    }
+
+    @Override
+    public void collideWith(Entity e) {
+<span class="fc" id="L144">        entity.collideWith(e);</span>
+<span class="fc" id="L145">    }</span>
+
+    @Override
+    public Vector2D getPositionBeforeLastUpdate() {
+<span class="fc" id="L149">        return this.entity.getPositionBeforeLastUpdate();</span>
+    }
+
+    @Override
+    public Vector2D getVelocity() {
+<span class="fc" id="L154">        return entity.getVelocity();</span>
+    }
+
+    @Override
+    public void setVelocity(Vector2D vel) {
+<span class="fc" id="L159">        entity.setVelocity(vel);</span>
+<span class="fc" id="L160">    }</span>
+
+    @Override
+    public double getHorizontalAcceleration() {
+<span class="fc" id="L164">        return entity.getHorizontalAcceleration();</span>
+    }
+
+    @Override
+    public void setHorizontalAcceleration(double horizontalAcceleration) {
+<span class="nc" id="L169">        entity.setHorizontalAcceleration(horizontalAcceleration);</span>
+<span class="nc" id="L170">    }</span>
+
+    /**
+     * Updates the wrapped entity and enforces velocity limits.
+     *
+     * @param durationNano The duration to update the entity by.
+     */
+    @Override
+    public void update(
+            double durationNano,
+            double levelGravity) {
+<span class="fc" id="L181">        entity.update(durationNano, levelGravity);</span>
+
+<span class="pc bpc" id="L183" title="1 of 4 branches missed.">        if (this.entity.getVelocity().getY() &lt; 0 &amp;&amp; afterNextBounce.isPresent()) {</span>
+<span class="nc" id="L184">            afterNextBounce.get().run();</span>
+<span class="nc" id="L185">            afterNextBounce = Optional.empty();</span>
+        }
+
+<span class="fc" id="L188">        enforceHorizontalVelocityLimit();</span>
+<span class="fc" id="L189">    }</span>
+
+    @Override
+    public Image getImage() {
+<span class="fc" id="L193">        return entity.getImage();</span>
+    }
+
+    @Override
+    public Vector2D getPosition() {
+<span class="fc" id="L198">        return entity.getPosition();</span>
+    }
+
+    @Override
+    public void setPosition(Vector2D pos) {
+<span class="fc" id="L203">        entity.setPosition(pos);</span>
+<span class="fc" id="L204">    }</span>
+
+    @Override
+    public double getHeight() {
+<span class="fc" id="L208">        return entity.getHeight();</span>
+    }
+
+    @Override
+    public double getWidth() {
+<span class="fc" id="L213">        return entity.getWidth();</span>
+    }
+
+    @Override
+    public Layer getLayer() {
+<span class="fc" id="L218">        return entity.getLayer();</span>
+    }
+
+    @Override
+    public AxisAlignedBoundingBox getVolume() {
+<span class="fc" id="L223">        return entity.getVolume();</span>
+    }
+
+    /**
+     * @return Version of this Entity as a EntityNotifier
+     */
+    @Override
+    public EntityNotifier getNotifier() {
+<span class="nc" id="L231">        return null;</span>
+    }
+
+    /**
+     * Enforces the current horizontal velocity limits. If the limit is exceeded, horizontal acceleration
+     * of the wrapped entity is set to 0.
+     */
+    private void enforceHorizontalVelocityLimit() {
+<span class="fc" id="L239">        double velocityX = entity.getVelocity().getX();</span>
+
+<span class="pc bpc" id="L241" title="1 of 2 branches missed.">        if (Math.abs(velocityX) &gt; maxHorizontalVelocity) {</span>
+<span class="nc" id="L242">            entity.setVelocity(</span>
+<span class="nc bnc" id="L243" title="All 2 branches missed.">                    entity.getVelocity().setX(velocityX &lt; 0 ? -maxHorizontalVelocity : maxHorizontalVelocity));</span>
+
+<span class="nc" id="L245">            double accX = entity.getHorizontalAcceleration();</span>
+<span class="nc bnc" id="L246" title="All 8 branches missed.">            if (velocityX &lt; 0 &amp;&amp; accX &lt; 0 || velocityX &gt; 0 &amp;&amp; accX &gt; 0) {</span>
+<span class="nc" id="L247">                entity.setHorizontalAcceleration(0);</span>
+            }
+        }
+<span class="fc" id="L250">    }</span>
+
+    @Override
+    public ControllableDynamicEntity&lt;DynamicEntity&gt; copy() {
+<span class="fc" id="L254">        return new ControllableDynamicEntity&lt;&gt;(</span>
+<span class="fc" id="L255">                entity.copy(),</span>
+<span class="fc" id="L256">                startingPosition.copy(),</span>
+                maxHorizontalVelocity,
+                floorHeight,
+                gravity
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

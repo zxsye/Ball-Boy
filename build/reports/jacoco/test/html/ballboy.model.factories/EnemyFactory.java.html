@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EnemyFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ballboy2a</a> &gt; <a href="index.source.html" class="el_package">ballboy.model.factories</a> &gt; <span class="el_source">EnemyFactory.java</span></div><h1>EnemyFactory.java</h1><pre class="source lang-java linenums">package ballboy.model.factories;
+
+import ballboy.ConfigurationParseException;
+import ballboy.model.Entity;
+import ballboy.model.Level;
+import ballboy.model.entities.behaviour.AggressiveEnemyBehaviourStrategy;
+import ballboy.model.entities.behaviour.BehaviourStrategy;
+import ballboy.model.entities.behaviour.PassiveEntityBehaviourStrategy;
+import ballboy.model.entities.behaviour.ScaredEnemyBehaviourStrategy;
+import ballboy.model.entities.collision.CollisionStrategy;
+import ballboy.model.entities.collision.EnemyCollisionStrategy;
+import ballboy.model.entities.DynamicEntityImpl;
+import ballboy.model.entities.utilities.AxisAlignedBoundingBox;
+import ballboy.model.entities.utilities.AxisAlignedBoundingBoxImpl;
+import ballboy.model.entities.utilities.KinematicState;
+import ballboy.model.entities.utilities.KinematicStateImpl;
+import ballboy.model.entities.utilities.Vector2D;
+import javafx.scene.image.Image;
+import org.json.simple.JSONObject;
+
+import java.util.Optional;
+
+<span class="fc" id="L23">public class EnemyFactory implements EntityFactory {</span>
+
+    @Override
+    public Entity createEntity(
+            Level level,
+            JSONObject config) {
+        try {
+<span class="fc" id="L30">            double startX = ((Number) config.get(&quot;startX&quot;)).doubleValue();</span>
+<span class="fc" id="L31">            double startY = ((Number) config.get(&quot;startY&quot;)).doubleValue();</span>
+<span class="fc" id="L32">            double startVelocityX = ((Number) config.get(&quot;startVelocityX&quot;)).doubleValue();</span>
+<span class="fc" id="L33">            String behaviour = (String) config.get(&quot;behaviour&quot;);</span>
+
+<span class="fc" id="L35">            Optional&lt;Double&gt; height = Optional.ofNullable(((Number) config.get(&quot;height&quot;))).map(Number::doubleValue);</span>
+
+<span class="fc" id="L37">            String imageName = (String) config.getOrDefault(&quot;image&quot;, &quot;slimePa.png&quot;);</span>
+
+<span class="fc" id="L39">            Vector2D startingPosition = new Vector2D(startX, startY);</span>
+
+<span class="fc" id="L41">            KinematicState kinematicState = new KinematicStateImpl.KinematicStateBuilder()</span>
+<span class="fc" id="L42">                    .setPosition(startingPosition)</span>
+<span class="fc" id="L43">                    .setHorizontalVelocity(startVelocityX)</span>
+<span class="fc" id="L44">                    .build();</span>
+
+<span class="fc" id="L46">            Image image = new Image(imageName);</span>
+
+<span class="fc" id="L48">            AxisAlignedBoundingBox volume = new AxisAlignedBoundingBoxImpl(</span>
+                    startingPosition,
+<span class="fc" id="L50">                    height.orElse(image.getHeight()),</span>
+<span class="fc" id="L51">                    height.map(h -&gt; h * image.getWidth() / image.getHeight()).orElse(image.getWidth())</span>
+            );
+
+<span class="fc" id="L54">            String colour = null;</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">            if (imageName.contains(&quot;slimeR&quot;)) {</span>
+<span class="fc" id="L56">                colour = &quot;RED&quot;;</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            } else if (imageName.contains(&quot;slimeG&quot;)) {</span>
+<span class="fc" id="L58">                colour = &quot;GREEN&quot;;</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">            } else if (imageName.contains(&quot;slimeB&quot;)) {</span>
+<span class="fc" id="L60">                colour = &quot;BLUE&quot;;</span>
+            }
+
+<span class="fc" id="L63">            CollisionStrategy collisionStrategy = new EnemyCollisionStrategy(level, colour);</span>
+
+            BehaviourStrategy behaviourStrategy;
+<span class="fc bfc" id="L66" title="All 4 branches covered.">            switch (behaviour) {</span>
+                case &quot;scared&quot;:
+<span class="fc" id="L68">                    behaviourStrategy = new ScaredEnemyBehaviourStrategy(level);</span>
+<span class="fc" id="L69">                    break;</span>
+                case &quot;passive&quot;:
+<span class="fc" id="L71">                    behaviourStrategy = new PassiveEntityBehaviourStrategy();</span>
+<span class="fc" id="L72">                    break;</span>
+                case &quot;aggressive&quot;:
+<span class="fc" id="L74">                    behaviourStrategy = new AggressiveEnemyBehaviourStrategy(level);</span>
+<span class="fc" id="L75">                    break;</span>
+                default:
+<span class="fc" id="L77">                    throw new ConfigurationParseException(</span>
+<span class="fc" id="L78">                            String.format(&quot;%s is not a valid entity behaviour\n&quot;, behaviour));</span>
+            }
+
+
+<span class="fc" id="L82">            Entity ret = new DynamicEntityImpl(</span>
+                    kinematicState,
+                    volume,
+                    Entity.Layer.FOREGROUND,
+                    image,
+                    collisionStrategy,
+                    behaviourStrategy
+            );
+
+<span class="fc" id="L91">            ret.getNotifier().attach(level.getListener());</span>
+<span class="fc" id="L92">            return ret;</span>
+
+<span class="fc" id="L94">        } catch (Exception e) {</span>
+<span class="fc" id="L95">            throw new ConfigurationParseException(</span>
+<span class="fc" id="L96">                    String.format(&quot;Invalid cloud entity configuration | %s | %s&quot;, config, e));</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

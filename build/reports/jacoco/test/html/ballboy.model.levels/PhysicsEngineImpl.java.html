@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PhysicsEngineImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ballboy2a</a> &gt; <a href="index.source.html" class="el_package">ballboy.model.levels</a> &gt; <span class="el_source">PhysicsEngineImpl.java</span></div><h1>PhysicsEngineImpl.java</h1><pre class="source lang-java linenums">package ballboy.model.levels;
+
+import ballboy.model.Entity;
+import ballboy.model.Level;
+import ballboy.model.entities.DynamicEntity;
+import ballboy.model.entities.StaticEntity;
+import ballboy.model.entities.utilities.AxisAlignedBoundingBox;
+import ballboy.model.entities.utilities.Vector2D;
+
+/**
+ * Primitive PhysicsEngine implementation.
+ */
+public class PhysicsEngineImpl implements PhysicsEngine {
+
+    private final double frameDurationMilli;
+
+<span class="fc" id="L17">    public PhysicsEngineImpl(double frameDurationMilli) {</span>
+<span class="fc" id="L18">        this.frameDurationMilli = frameDurationMilli;</span>
+<span class="fc" id="L19">    }</span>
+
+    @Override
+    public void resolveCollision(
+            DynamicEntity a,
+            StaticEntity b,
+            Level level) {
+<span class="fc bfc" id="L26" title="All 4 branches covered.">        if ((a.getLayer() == Entity.Layer.BACKGROUND || b.getLayer() == Entity.Layer.BACKGROUND)) {</span>
+<span class="fc" id="L27">            return;</span>
+        }
+
+        // previous position before the last update was called
+<span class="fc" id="L31">        Vector2D previousPosition = a.getPositionBeforeLastUpdate();</span>
+
+<span class="fc" id="L33">        AxisAlignedBoundingBox aPreviousPositionVolume = a.getVolume().copy();</span>
+<span class="fc" id="L34">        aPreviousPositionVolume.setTopLeft(previousPosition);</span>
+
+        /*
+         * collided prior to the most recent update, so no need to
+         * resolve the collision as it would have been delt with before
+         */
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">        if (aPreviousPositionVolume.collidesWith(b.getVolume())) {</span>
+<span class="nc" id="L41">            return;</span>
+        }
+
+        // volume with only the horizontal translation applied
+<span class="fc" id="L45">        AxisAlignedBoundingBox aHorizontallySteppedVolume = aPreviousPositionVolume.copy();</span>
+<span class="fc" id="L46">        aHorizontallySteppedVolume.setTopLeft(a.getPosition().setY(previousPosition.getY()));</span>
+
+<span class="fc bfc" id="L48" title="All 2 branches covered.">        if (aHorizontallySteppedVolume.collidesWith(b.getVolume())) { // horizontal collision</span>
+<span class="fc" id="L49">            reflectX(a);</span>
+
+<span class="fc bfc" id="L51" title="All 2 branches covered.">            if (a.getPosition().isLeftOf(b.getVolume().getLeftX())) {</span>
+<span class="fc" id="L52">                a.setPosition(new Vector2D(b.getVolume().getLeftX() - a.getWidth(), a.getPosition().getY()));</span>
+            } else {
+<span class="fc" id="L54">                a.setPosition(a.getPosition().setX(b.getVolume().getRightX()));</span>
+            }
+        } else { // vertical collision
+<span class="fc" id="L57">            reflectY(a, level.getGravity());</span>
+
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">            if (a.getPosition().isAbove(b.getVolume().getTopY())) {</span>
+<span class="fc" id="L60">                a.setPosition(a.getPosition().setY(b.getVolume().getTopY() - a.getHeight()));</span>
+            } else {
+<span class="nc" id="L62">                a.setPosition(a.getPosition().setY(b.getVolume().getBottomY()));</span>
+            }
+        }
+<span class="fc" id="L65">    }</span>
+
+    @Override
+    public void resolveCollision(
+            DynamicEntity a,
+            DynamicEntity b) {
+<span class="pc bpc" id="L71" title="2 of 4 branches missed.">        if ((a.getLayer() == Entity.Layer.BACKGROUND || b.getLayer() == Entity.Layer.BACKGROUND)) {</span>
+<span class="nc" id="L72">            return;</span>
+        }
+
+        /*
+         * if they collided in a previous update cycle then dont handle it, as
+         * it would have been handled then
+         */
+<span class="fc" id="L79">        AxisAlignedBoundingBox aVolumeBeforeUpdate = a.getVolume().copy();</span>
+<span class="fc" id="L80">        aVolumeBeforeUpdate.setTopLeft(a.getPositionBeforeLastUpdate());</span>
+
+<span class="fc" id="L82">        AxisAlignedBoundingBox bVolumeBeforeUpdate = b.getVolume().copy();</span>
+<span class="fc" id="L83">        bVolumeBeforeUpdate.setTopLeft(b.getPositionBeforeLastUpdate());</span>
+
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        if (aVolumeBeforeUpdate.collidesWith(bVolumeBeforeUpdate)) {</span>
+<span class="nc" id="L86">            return;</span>
+        }
+
+        // assuming constant mass for now
+<span class="fc" id="L90">        double aMass = 1.0;</span>
+<span class="fc" id="L91">        double bMass = 1.0;</span>
+
+        /*
+         * step the previous volume only horizontally. If there is a collision it is treated as if the objects
+         * collided in the horizontal axis. If not, then it is treated as if the objects collided vertically
+         */
+<span class="fc" id="L97">        AxisAlignedBoundingBox aVolumeOnlySteppedHorizontally = aVolumeBeforeUpdate.copy();</span>
+<span class="fc" id="L98">        aVolumeOnlySteppedHorizontally.setTopLeft(a.getPosition().setY(a.getPositionBeforeLastUpdate().getY()));</span>
+
+<span class="fc" id="L100">        boolean isHorizontalCollision = aVolumeOnlySteppedHorizontally.collidesWith(bVolumeBeforeUpdate);</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        if (isHorizontalCollision) { // horizontal collision</span>
+<span class="fc" id="L102">            double aVelocityX = a.getVelocity().getX();</span>
+<span class="fc" id="L103">            double bVelocityX = b.getVelocity().getX();</span>
+
+<span class="fc" id="L105">            double aVelocityXNew =</span>
+                    ((aMass - bMass) / (aMass + bMass)) * aVelocityX + ((2 * bMass) / (aMass + bMass)) * bVelocityX;
+<span class="fc" id="L107">            double bVelocityXNew =</span>
+                    ((2 * aMass) / (aMass + bMass)) * aVelocityX - ((aMass - bMass) / (aMass + bMass)) * bVelocityX;
+
+<span class="fc" id="L110">            a.setVelocity(a.getVelocity().setX(aVelocityXNew));</span>
+<span class="fc" id="L111">            b.setVelocity(b.getVelocity().setX(bVelocityXNew));</span>
+<span class="fc" id="L112">        } else { // vertical collision</span>
+<span class="fc" id="L113">            double aVelocityY = a.getVelocity().getY();</span>
+<span class="fc" id="L114">            double bVelocityY = b.getVelocity().getY();</span>
+
+<span class="fc" id="L116">            double aVelocityYNew =</span>
+                    ((aMass - bMass) / (aMass + bMass)) * aVelocityY + ((2 * bMass) / (aMass + bMass)) * bVelocityY;
+<span class="fc" id="L118">            double bVelocityYNew =</span>
+                    ((2 * aMass) / (aMass + bMass)) * aVelocityY - ((aMass - bMass) / (aMass + bMass)) * bVelocityY;
+
+<span class="fc" id="L121">            a.setVelocity(a.getVelocity().setY(aVelocityYNew));</span>
+<span class="fc" id="L122">            b.setVelocity(b.getVelocity().setY(bVelocityYNew));</span>
+        }
+<span class="fc" id="L124">    }</span>
+
+    @Override
+    public void enforceWorldLimits(
+            DynamicEntity a,
+            Level level) {
+        // if outside horizontal boundaries and travelling in the wrong direction
+<span class="pc bpc" id="L131" title="3 of 6 branches missed.">        if (a.getPosition().isRightOf(level.getLevelWidth()) &amp;&amp; a.getVelocity().getX() &gt; 0 || a.getPosition().isLeftOf(</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">                0.0) &amp;&amp; a.getVelocity().getX() &lt; 0) {</span>
+<span class="fc" id="L133">            reflectX(a);</span>
+        }
+
+        // below ground
+<span class="fc bfc" id="L137" title="All 4 branches covered.">        if (a.getPosition().addY(a.getHeight()).isBelow(level.getFloorHeight()) &amp;&amp; a.getVelocity().getY() &gt; 0) {</span>
+<span class="fc" id="L138">            reflectY(a, level.getGravity());</span>
+<span class="fc" id="L139">            a.setPosition(a.getPosition().setY(level.getFloorHeight() - a.getHeight()));</span>
+        }
+
+        // above max height
+<span class="pc bpc" id="L143" title="3 of 4 branches missed.">        if (a.getPosition().isAbove(0) &amp;&amp; a.getVelocity().getY() &lt; 0) {</span>
+<span class="nc" id="L144">            reflectY(a, level.getGravity());</span>
+        }
+<span class="fc" id="L146">        return;</span>
+    }
+
+    /**
+     * Reflects the provided entities motion in the horizontal axis.
+     * &lt;p&gt;
+     * Acceleration before the collision is accounted for.
+     *
+     * @param entity The entity to be reflected horizontally.
+     */
+    private void reflectX(DynamicEntity entity) {
+<span class="fc" id="L157">        entity.setVelocity(</span>
+<span class="fc" id="L158">                entity.getVelocity().addX(</span>
+<span class="fc" id="L159">                        -1 * entity.getHorizontalAcceleration() * frameDurationMilli * 1e-3).reflectX()</span>
+        );
+<span class="fc" id="L161">    }</span>
+
+    /**
+     * Reflects the provided entities motion in the horizontal axis.
+     * &lt;p&gt;
+     * Acceleration before the collision is accounted for.
+     *
+     * @param entity The entity to be reflected vertically.
+     */
+    private void reflectY(
+            DynamicEntity entity,
+            double levelGravity) {
+<span class="fc" id="L173">        entity.setVelocity(</span>
+<span class="fc" id="L174">                entity.getVelocity().addY(-1 * levelGravity * frameDurationMilli * 1e-3).reflectY()</span>
+        );
+<span class="fc" id="L176">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

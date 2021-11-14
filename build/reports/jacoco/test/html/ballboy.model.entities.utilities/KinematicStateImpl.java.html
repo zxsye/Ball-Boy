@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KinematicStateImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ballboy2a</a> &gt; <a href="index.source.html" class="el_package">ballboy.model.entities.utilities</a> &gt; <span class="el_source">KinematicStateImpl.java</span></div><h1>KinematicStateImpl.java</h1><pre class="source lang-java linenums">package ballboy.model.entities.utilities;
+
+import ballboy.model.Prototype;
+
+/**
+ * Discrete kinematic state implementation.
+ */
+public class KinematicStateImpl implements KinematicState, Prototype {
+    private Vector2D position;
+    private Vector2D previousPosition;
+    private Vector2D velocity;
+    private double horizontalAcceleration;
+
+    private KinematicStateImpl(
+            Vector2D position,
+            Vector2D velocity,
+<span class="fc" id="L17">            double horizontalAcceleration) {</span>
+<span class="fc" id="L18">        this.position = position;</span>
+<span class="fc" id="L19">        this.previousPosition = position;</span>
+<span class="fc" id="L20">        this.velocity = velocity;</span>
+<span class="fc" id="L21">        this.horizontalAcceleration = horizontalAcceleration;</span>
+<span class="fc" id="L22">    }</span>
+
+    private KinematicStateImpl(
+            Vector2D position,
+            Vector2D previousPosition,
+            Vector2D velocity,
+<span class="fc" id="L28">            double horizontalAcceleration) {</span>
+<span class="fc" id="L29">        this.position = position;</span>
+<span class="fc" id="L30">        this.previousPosition = previousPosition;</span>
+<span class="fc" id="L31">        this.velocity = velocity;</span>
+<span class="fc" id="L32">        this.horizontalAcceleration = horizontalAcceleration;</span>
+<span class="fc" id="L33">    }</span>
+
+    @Override
+    public Vector2D getPosition() {
+<span class="fc" id="L37">        return this.position;</span>
+    }
+
+    @Override
+    public void setPosition(Vector2D position) {
+<span class="fc" id="L42">        this.position = position;</span>
+<span class="fc" id="L43">    }</span>
+
+    @Override
+    public Vector2D getVelocity() {
+<span class="fc" id="L47">        return this.velocity;</span>
+    }
+
+    @Override
+    public void setVelocity(Vector2D velocity) {
+<span class="fc" id="L52">        this.velocity = velocity;</span>
+<span class="fc" id="L53">    }</span>
+
+    @Override
+    public double getHorizontalAcceleration() {
+<span class="fc" id="L57">        return this.horizontalAcceleration;</span>
+    }
+
+    @Override
+    public void setHorizontalAcceleration(double acceleration) {
+<span class="fc" id="L62">        this.horizontalAcceleration = acceleration;</span>
+<span class="fc" id="L63">    }</span>
+
+    @Override
+    public void update(
+            double milliSeconds,
+            double levelGravity) {
+<span class="fc" id="L69">        this.previousPosition = position;</span>
+<span class="fc" id="L70">        this.position = this.position.add(this.velocity.scale(milliSeconds).scale(1e-3));</span>
+<span class="fc" id="L71">        Vector2D acceleration = new Vector2D(horizontalAcceleration, levelGravity);</span>
+<span class="fc" id="L72">        this.velocity = this.velocity.add(acceleration.scale(milliSeconds).scale(1e-3));</span>
+<span class="fc" id="L73">    }</span>
+
+    @Override
+    public KinematicStateImpl copy() {
+<span class="fc" id="L77">        return new KinematicStateImpl(position.copy(),</span>
+<span class="fc" id="L78">                previousPosition.copy(),</span>
+<span class="fc" id="L79">                velocity.copy(),</span>
+                horizontalAcceleration);
+    }
+
+    @Override
+    public Vector2D getPreviousPosition() {
+<span class="fc" id="L85">        return previousPosition;</span>
+    }
+
+<span class="fc" id="L88">    public static class KinematicStateBuilder {</span>
+<span class="fc" id="L89">        private Vector2D position = Vector2D.ZERO;</span>
+<span class="fc" id="L90">        private Vector2D velocity = Vector2D.ZERO;</span>
+
+        public KinematicStateBuilder setPosition(Vector2D position) {
+<span class="fc" id="L93">            this.position = position;</span>
+<span class="fc" id="L94">            return this;</span>
+        }
+
+        public KinematicStateBuilder setHorizontalVelocity(double velocityX) {
+<span class="fc" id="L98">            this.velocity = this.velocity.setX(velocityX);</span>
+<span class="fc" id="L99">            return this;</span>
+        }
+
+        public KinematicStateImpl build() {
+<span class="fc" id="L103">            return new KinematicStateImpl(</span>
+                    this.position,
+                    this.velocity,
+                    0
+            );
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

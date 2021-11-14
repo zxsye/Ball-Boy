@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Entity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ballboy2a</a> &gt; <a href="index.source.html" class="el_package">ballboy.model</a> &gt; <span class="el_source">Entity.java</span></div><h1>Entity.java</h1><pre class="source lang-java linenums">package ballboy.model;
+
+import ballboy.model.entities.utilities.AxisAlignedBoundingBox;
+import ballboy.model.entities.utilities.EntityListener;
+import ballboy.model.entities.utilities.EntityNotifier;
+import ballboy.model.entities.utilities.Vector2D;
+import javafx.scene.image.Image;
+
+public interface Entity extends Prototype {
+    /**
+     * Returns the current Image used by this Entity. This may change over time, such as for simple animations.
+     *
+     * @return An Image representing the current state of this Entity
+     */
+    Image getImage();
+
+    /**
+     * @return Vector2 The current position of the entity, being the top left anchor.
+     */
+    Vector2D getPosition();
+
+    /**
+     * Returns the current height of this Entity
+     *
+     * @return The height in coordinate space (e.g. number of pixels)
+     */
+    double getHeight();
+
+    /**
+     * Returns the current width of this Entity
+     *
+     * @return The width in coordinate space (e.g. number of pixels)
+     */
+    double getWidth();
+
+    /**
+     * Returns the current 'z' position to draw this entity. Order within each layer is undefined.
+     *
+     * @return The layer to draw the entity on.
+     */
+    Layer getLayer();
+
+    /**
+     * @return AxisAlignedBoundingBox The enclosing volume of this entity.
+     */
+    AxisAlignedBoundingBox getVolume();
+
+    /**
+     * The set of available layers
+     */
+<span class="fc" id="L51">    enum Layer {</span>
+<span class="fc" id="L52">        BACKGROUND, FOREGROUND, EFFECT</span>
+    }
+
+    /**
+     *
+     * @return Version of this Entity as a EntityNotifier
+     */
+    EntityNotifier getNotifier();
+
+    @Override
+    Entity copy();
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

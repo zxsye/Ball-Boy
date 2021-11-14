@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SquarecatBehaviourStrategy.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ballboy2a</a> &gt; <a href="index.source.html" class="el_package">ballboy.model.entities.behaviour</a> &gt; <span class="el_source">SquarecatBehaviourStrategy.java</span></div><h1>SquarecatBehaviourStrategy.java</h1><pre class="source lang-java linenums">package ballboy.model.entities.behaviour;
+
+import ballboy.model.Level;
+import ballboy.model.Prototype;
+import ballboy.model.entities.DynamicEntity;
+import ballboy.model.entities.utilities.Vector2D;
+
+/**
+ * An aggressive strategy that makes the entity follow the ballboy.
+ * Acceleration is applied horizontally in the direction of the ballboy
+ * until a maximum velocity is reached.
+ */
+public class SquarecatBehaviourStrategy implements BehaviourStrategy {
+    private static final double VELOCITY = 3;
+    private double radius;
+<span class="fc" id="L16">    private double catX = 0;</span>
+<span class="fc" id="L17">    private double catY = 0;</span>
+
+    private final Level level;
+    private SquarecatState state;
+
+<span class="fc" id="L22">    public SquarecatBehaviourStrategy(Level level, double radius) {</span>
+<span class="fc" id="L23">        this.level = level;</span>
+<span class="fc" id="L24">        this.radius = radius;</span>
+<span class="fc" id="L25">        this.state = SquarecatState.A;</span>
+<span class="fc" id="L26">    }</span>
+
+    @Override
+    public void behave(
+            DynamicEntity entity,
+            double frameDurationMilli) {
+
+        // Undo gravity
+//        entity.setPosition(entity.getPosition().setY(
+//                entity.getPositionBeforeLastUpdate().getY()));
+        // Remove any other automatic movement
+//        entity.setVelocity(entity.getVelocity().setY(0));
+//        entity.setVelocity(entity.getVelocity().setX(0));
+
+        // Set square cat position to be relative to top left corner
+<span class="fc" id="L41">        entity.setPosition(new Vector2D(level.getHeroX(), level.getHeroY()));</span>
+<span class="fc" id="L42">        entity.setPosition(entity.getPosition().setX(</span>
+<span class="fc" id="L43">                entity.getPosition().getX() - radius - entity.getWidth()</span>
+        ));
+<span class="fc" id="L45">        entity.setPosition(entity.getPosition().setY(</span>
+<span class="fc" id="L46">                entity.getPosition().getY() - radius - entity.getHeight()</span>
+        ));
+//        System.out.println(&quot;MY STATE IS&quot;);
+
+//        switch (this.state) {
+//            case A:
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (this.state == SquarecatState.A) {</span>
+//            System.out.println(&quot;A&quot;);
+<span class="fc" id="L54">            catX += VELOCITY;</span>
+<span class="fc" id="L55">            addPos(entity, catX, catY);</span>
+//            entity.setPosition(entity.getPosition().setX(
+//                    entity.getPosition().getX() + catX
+//            ));
+//            System.out.printf(&quot;== REL x %f\n&quot;, entity.getPosition().getX() - level.getHeroX());
+
+<span class="fc bfc" id="L61" title="All 2 branches covered.">            if (entity.getPosition().isRightOf(</span>
+<span class="fc" id="L62">                    level.getHeroX() + level.getHeroWidth() + radius)) {</span>
+//                System.out.printf(&quot;SC_x: %f = Hero_x: %f&quot;, entity.getPosition().getX(), level.getHeroX());
+<span class="fc" id="L64">                this.state = state.next();</span>
+//                System.out.println(&quot;going to B&quot;);
+            }
+        }
+//            case B:
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        else if (this.state == SquarecatState.B) {</span>
+//            System.out.println(&quot;B&quot;);
+<span class="fc" id="L71">            catY += VELOCITY;</span>
+<span class="fc" id="L72">            addPos(entity, catX, catY);</span>
+//            entity.setPosition(entity.getPosition().setY(
+//                    entity.getPosition().getY() + catY
+//            ));
+
+<span class="fc bfc" id="L77" title="All 2 branches covered.">            if (entity.getPosition().isBelow(</span>
+<span class="fc" id="L78">                    level.getHeroY() + level.getHeroHeight() + radius)) {</span>
+<span class="fc" id="L79">                this.state = state.next();</span>
+//                System.out.println(&quot;going to C&quot;);
+            }
+        }
+//            case C:
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        else if (this.state == SquarecatState.C) {</span>
+//            System.out.println(&quot;C&quot;);
+<span class="fc" id="L86">            catX -= VELOCITY;</span>
+<span class="fc" id="L87">            addPos(entity, catX, catY);</span>
+//            entity.setPosition(entity.getPosition().setX(
+//                    entity.getPosition().getX() + catX;
+//            ));
+
+<span class="fc bfc" id="L92" title="All 2 branches covered.">            if (entity.getPosition().isLeftOf(</span>
+<span class="fc" id="L93">                    level.getHeroX() - radius - entity.getWidth())) {</span>
+<span class="fc" id="L94">                this.state = state.next();</span>
+//                System.out.println(&quot;going to D&quot;);
+            }
+        }
+//            case D:
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        else if (this.state == SquarecatState.D) {</span>
+//            System.out.println(&quot;Dee&quot;);
+<span class="fc" id="L101">            catY -= VELOCITY;</span>
+<span class="fc" id="L102">            addPos(entity, catX, catY);</span>
+//            entity.setPosition(entity.getPosition().setY(
+//                    entity.getPosition().getY() - VELOCITY
+//            ));
+
+<span class="fc bfc" id="L107" title="All 2 branches covered.">            if (entity.getPosition().isAbove(</span>
+<span class="fc" id="L108">                    level.getHeroY() - radius - entity.getHeight()</span>
+            )) {
+<span class="fc" id="L110">                this.state = state.next();</span>
+//                System.out.println(&quot;going to A&quot;);
+            }
+        }
+
+//        System.out.printf(&quot;relative x %f&quot;, entity.getPosition().getX() - level.getHeroX());
+//        System.out.printf(&quot;relative y %f&quot;, entity.getPosition().getY() - level.getHeroY());
+
+
+<span class="fc" id="L119">    }</span>
+
+    private void addPos(DynamicEntity entity, double x, double y) {
+<span class="fc" id="L122">        entity.setPosition(new Vector2D(</span>
+<span class="fc" id="L123">                entity.getPosition().getX() + x,</span>
+<span class="fc" id="L124">                entity.getPosition().getY() + y));</span>
+<span class="fc" id="L125">    }</span>
+
+    @Override
+    public SquarecatBehaviourStrategy copy() {
+<span class="fc" id="L129">        return new SquarecatBehaviourStrategy(level, this.radius);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

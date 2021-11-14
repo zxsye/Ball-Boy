@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KeyboardInputHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ballboy2a</a> &gt; <a href="index.source.html" class="el_package">ballboy.view</a> &gt; <span class="el_source">KeyboardInputHandler.java</span></div><h1>KeyboardInputHandler.java</h1><pre class="source lang-java linenums">package ballboy.view;
+
+import ballboy.model.GameCaretaker;
+import ballboy.model.GameEngine;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+
+import java.util.HashSet;
+import java.util.Set;
+
+class KeyboardInputHandler {
+    private final GameEngine model;
+<span class="fc" id="L13">    private boolean left = false;</span>
+<span class="fc" id="L14">    private boolean right = false;</span>
+<span class="fc" id="L15">    private final Set&lt;KeyCode&gt; pressedKeys = new HashSet&lt;&gt;();</span>
+
+    private final GameCaretaker gameCaretaker;
+
+//    private Map&lt;String, MediaPlayer&gt; sounds = new HashMap&lt;&gt;();
+
+<span class="fc" id="L21">    KeyboardInputHandler(GameEngine model, GameCaretaker gameCaretaker) {</span>
+<span class="fc" id="L22">        this.model = model;</span>
+<span class="fc" id="L23">        this.gameCaretaker = gameCaretaker;</span>
+
+        // TODO (longGoneUser): Is there a better place for this code?
+        // TODO (bobbob): Move sound choice/production into the model before alpha is released to the new devs
+        // TODO (bobbob): Just commenting this out while I debug my driver - don't forget to revert this before anyone
+        // else sees this
+//        URL mediaUrl = getClass().getResource(&quot;/jump.wav&quot;);
+//        String jumpURL = mediaUrl.toExternalForm();
+//
+//        Media sound = new Media(jumpURL);
+//        MediaPlayer mediaPlayer = new MediaPlayer(sound);
+//        sounds.put(&quot;jump&quot;, mediaPlayer);
+<span class="fc" id="L35">    }</span>
+
+    void handlePressed(KeyEvent keyEvent) {
+<span class="nc bnc" id="L38" title="All 2 branches missed.">        if (pressedKeys.contains(keyEvent.getCode())) {</span>
+<span class="nc" id="L39">            return;</span>
+        }
+<span class="nc" id="L41">        pressedKeys.add(keyEvent.getCode());</span>
+
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (keyEvent.getCode().equals(KeyCode.UP)) {</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">            if (model.boostHeight()) {</span>
+//                MediaPlayer jumpPlayer = sounds.get(&quot;jump&quot;);
+//                jumpPlayer.stop();
+//                jumpPlayer.play();
+            }
+        }
+
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (keyEvent.getCode().equals(KeyCode.LEFT)) {</span>
+<span class="nc" id="L52">            left = true;</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        } else if (keyEvent.getCode().equals(KeyCode.RIGHT)) {</span>
+<span class="nc" id="L54">            right = true;</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        } else if (keyEvent.getCode().equals(KeyCode.S)) {</span>
+<span class="nc" id="L56">            this.gameCaretaker.quickSave();</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        } else if (keyEvent.getCode().equals(KeyCode.Q)) {</span>
+<span class="nc" id="L58">            this.gameCaretaker.quickLoad();</span>
+        } else {
+<span class="nc" id="L60">            return;</span>
+        }
+
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (left) {</span>
+<span class="nc" id="L64">            model.moveLeft();</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        } else if (right) {</span>
+<span class="nc" id="L66">            model.moveRight();</span>
+        }
+<span class="nc" id="L68">    }</span>
+
+    void handleReleased(KeyEvent keyEvent) {
+<span class="nc" id="L71">        pressedKeys.remove(keyEvent.getCode());</span>
+
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (keyEvent.getCode().equals(KeyCode.LEFT)) {</span>
+<span class="nc" id="L74">            left = false;</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        } else if (keyEvent.getCode().equals(KeyCode.RIGHT)) {</span>
+<span class="nc" id="L76">            right = false;</span>
+        } else {
+<span class="nc" id="L78">            return;</span>
+        }
+
+<span class="nc bnc" id="L81" title="All 4 branches missed.">        if (!(right || left)) {</span>
+<span class="nc" id="L82">            model.dropHeight();</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        } else if (right) {</span>
+<span class="nc" id="L84">            model.moveRight();</span>
+        } else {
+<span class="nc" id="L86">            model.moveLeft();</span>
+        }
+<span class="nc" id="L88">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

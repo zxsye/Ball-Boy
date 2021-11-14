@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>App.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ballboy2a</a> &gt; <a href="index.source.html" class="el_package">ballboy</a> &gt; <span class="el_source">App.java</span></div><h1>App.java</h1><pre class="source lang-java linenums">package ballboy;
+
+import ballboy.model.*;
+import ballboy.model.factories.*;
+import ballboy.model.levels.LevelImpl;
+import ballboy.model.levels.PhysicsEngine;
+import ballboy.model.levels.PhysicsEngineImpl;
+import ballboy.view.GameWindow;
+import javafx.application.Application;
+import javafx.stage.Stage;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/*
+ * Application root.
+ *
+ * Wiring of the dependency graph should be done manually in the start method.
+ */
+<span class="nc" id="L23">public class App extends Application {</span>
+
+    public static void main(String[] args) {
+<span class="nc" id="L26">        launch(args);</span>
+<span class="nc" id="L27">    }</span>
+
+    @Override
+    public void start(Stage primaryStage) {
+<span class="nc" id="L31">        Map&lt;String, String&gt; params = getParameters().getNamed();</span>
+
+<span class="nc" id="L33">        String s = &quot;Java 11 sanity check&quot;;</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">        if (s.isBlank()) {</span>
+<span class="nc" id="L35">            throw new IllegalStateException(&quot;You must be running Java 11+. You won't ever see this exception though&quot; +</span>
+                    &quot; as your code will fail to compile on Java 10 and below.&quot;);
+        }
+
+<span class="nc" id="L39">        ConfigurationParser configuration = new ConfigurationParser();</span>
+<span class="nc" id="L40">        JSONObject parsedConfiguration = null;</span>
+        try {
+<span class="nc" id="L42">            parsedConfiguration = configuration.parseConfig(&quot;config.json&quot;);</span>
+<span class="nc" id="L43">        } catch (ConfigurationParseException e) {</span>
+<span class="nc" id="L44">            System.out.println(e);</span>
+<span class="nc" id="L45">            System.exit(-1);</span>
+<span class="nc" id="L46">        }</span>
+
+<span class="nc" id="L48">        final double frameDurationMilli = 17;</span>
+<span class="nc" id="L49">        PhysicsEngine engine = new PhysicsEngineImpl(frameDurationMilli);</span>
+
+<span class="nc" id="L51">        EntityFactoryRegistry entityFactoryRegistry = new EntityFactoryRegistry();</span>
+<span class="nc" id="L52">        entityFactoryRegistry.registerFactory(&quot;cloud&quot;, new CloudFactory());</span>
+<span class="nc" id="L53">        entityFactoryRegistry.registerFactory(&quot;enemy&quot;, new EnemyFactory());</span>
+<span class="nc" id="L54">        entityFactoryRegistry.registerFactory(&quot;background&quot;, new StaticEntityFactory(Entity.Layer.BACKGROUND));</span>
+<span class="nc" id="L55">        entityFactoryRegistry.registerFactory(&quot;static&quot;, new StaticEntityFactory(Entity.Layer.FOREGROUND));</span>
+<span class="nc" id="L56">        entityFactoryRegistry.registerFactory(&quot;finish&quot;, new FinishFactory());</span>
+<span class="nc" id="L57">        entityFactoryRegistry.registerFactory(&quot;hero&quot;, new BallboyFactory());</span>
+<span class="nc" id="L58">        entityFactoryRegistry.registerFactory(&quot;squarecat&quot;, new SquarecatFactory());</span>
+
+<span class="nc" id="L60">        Integer indexOfStartLevel = ((Number) parsedConfiguration.get(&quot;currentLevelIndex&quot;)).intValue();</span>
+<span class="nc" id="L61">        JSONArray levelConfigs = (JSONArray) parsedConfiguration.get(&quot;levels&quot;);</span>
+<span class="nc" id="L62">        List&lt;Level&gt; levelList = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        for (Object i : levelConfigs) {</span>
+<span class="nc" id="L65">            JSONObject levelInfo = (JSONObject) i;</span>
+<span class="nc" id="L66">            levelList.add(new LevelImpl(levelInfo, engine, entityFactoryRegistry, frameDurationMilli));</span>
+
+<span class="nc" id="L68">        }</span>
+
+<span class="nc" id="L70">        GameEngine gameEngine = new GameEngineImpl(levelList, indexOfStartLevel);</span>
+<span class="nc" id="L71">        GameCaretaker gameCaretaker = new GameCaretaker(gameEngine);</span>
+
+<span class="nc" id="L73">        GameWindow window = new GameWindow(gameEngine, gameCaretaker, 640, 400, frameDurationMilli);</span>
+<span class="nc" id="L74">        window.run();</span>
+
+<span class="nc" id="L76">        primaryStage.setTitle(&quot;Ballboy&quot;);</span>
+<span class="nc" id="L77">        primaryStage.setScene(window.getScene());</span>
+<span class="nc" id="L78">        primaryStage.setResizable(false);</span>
+<span class="nc" id="L79">        primaryStage.show();</span>
+
+<span class="nc" id="L81">        window.run();</span>
+<span class="nc" id="L82">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

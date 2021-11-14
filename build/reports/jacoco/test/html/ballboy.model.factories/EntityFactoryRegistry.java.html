@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EntityFactoryRegistry.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ballboy2a</a> &gt; <a href="index.source.html" class="el_package">ballboy.model.factories</a> &gt; <span class="el_source">EntityFactoryRegistry.java</span></div><h1>EntityFactoryRegistry.java</h1><pre class="source lang-java linenums">package ballboy.model.factories;
+
+import ballboy.model.Entity;
+import ballboy.model.Level;
+import org.json.simple.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/*
+ * Composite Entity factory that delegates to the appropriate registered concrete factory.
+ */
+<span class="fc" id="L13">public class EntityFactoryRegistry implements EntityFactory {</span>
+
+<span class="fc" id="L15">    private final Map&lt;String, EntityFactory&gt; factoryRegistry = new HashMap&lt;&gt;();</span>
+
+    /*
+     * Registers a concrete factory delegate for the specified type.
+     */
+    public void registerFactory(
+            String entityType,
+            EntityFactory factory) {
+<span class="pc bpc" id="L23" title="1 of 2 branches missed.">        if (factoryRegistry.containsKey(entityType)) {</span>
+<span class="nc" id="L24">            throw new IllegalStateException(</span>
+<span class="nc" id="L25">                    String.format(&quot;duplicate registration of factory for entity type %s\n&quot;, entityType));</span>
+        }
+
+<span class="fc" id="L28">        factoryRegistry.put(entityType, factory);</span>
+<span class="fc" id="L29">    }</span>
+
+    @Override
+    public Entity createEntity(
+            Level level,
+            JSONObject config) {
+
+<span class="fc" id="L36">        String type = (String) config.get(&quot;type&quot;);</span>
+
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        if (!factoryRegistry.containsKey(type)) {</span>
+<span class="fc" id="L39">            throw new IllegalStateException(String.format(&quot;no factory registered for entity type %s\n&quot;, type));</span>
+        }
+
+<span class="fc" id="L42">        EntityFactory factory = factoryRegistry.get(type);</span>
+<span class="fc" id="L43">        return factory.createEntity(level, config);</span>
+    }
+}
+
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>
