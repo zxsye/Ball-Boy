@@ -159,9 +159,9 @@ public class DynamicEntityImpl extends DynamicEntity {
 <span class="fc" id="L159">                this.behaviourStrategy.copy()</span>
         );
 
-<span class="fc bfc" id="L162" title="All 2 branches covered.">        for (EntityListener listener : this.listenerList) {</span>
-<span class="fc" id="L163">            copy.attach(listener);</span>
-<span class="fc" id="L164">        }</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">        for (EntityListener listener : this.listenerList) {</span>
+<span class="nc" id="L163">            copy.attach(listener);</span>
+<span class="nc" id="L164">        }</span>
 <span class="fc" id="L165">        return copy;</span>
     }
 }

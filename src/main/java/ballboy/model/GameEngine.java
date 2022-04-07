@@ -49,13 +49,27 @@ public interface GameEngine {
      */
     void tick();
 
-
+    /**
+     *
+     * @return Printable string for total score: scores of completed levels
+     */
     String getTotalScoreAsString();
 
-
+    /**
+     * Save the current state of game engine (and its levels)
+     * @return Memento representing saved state
+     */
     Memento saveGameState();
 
+    /**
+     * Finish the current level and go to next level.
+     * If all levels are finished, then mark game as finished
+     */
     void finishCurrentLevel();
 
+    /**
+     * Indicate finish status of game
+     * @return True if game is finished with no more levels to complete
+     */
     boolean isGameFinish();
 }

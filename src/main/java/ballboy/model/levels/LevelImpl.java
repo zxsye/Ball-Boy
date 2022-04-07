@@ -192,9 +192,6 @@ public class LevelImpl implements Level, EntityListener {
             for (StaticEntity staticEntity : getStaticEntities()) {
                 if (dynamicEntityA.collidesWith(staticEntity)) {
                     dynamicEntityA.collideWith(staticEntity);
-                    if (isHero(dynamicEntityA) && isFinish(staticEntity)) {
-                        System.out.println("LEVEL FINISH");
-                    }
                     if (!isSquarecat(dynamicEntityA)) {
                         engine.resolveCollision(dynamicEntityA, staticEntity, this);
                     }

@@ -1,6 +1,5 @@
 package ballboy.model.entities.behaviour;
 
-import ballboy.model.Prototype;
 import ballboy.model.entities.DynamicEntity;
 
 /**

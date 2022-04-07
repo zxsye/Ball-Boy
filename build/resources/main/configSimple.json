@@ -1,0 +1,53 @@
+{
+  "_currentLevelIndexComment": "Specifies which level to load from the levels array",
+  "currentLevelIndex": 0,
+  "levels": [
+    {
+      "levelWidth": 2000.0,
+      "levelHeight": 620.0,
+      "floor": {
+        "height": 600.0,
+        "_colorComment": "color must be a web color, e.g. #0033cc",
+        "color": "#001100"
+      },
+      "_scoreColours": "indicates which scores to keep track of for this level",
+      "scoreColours": ["RED", "GREEN", "BLUE"],
+      "levelGravity": 700.0,
+      "maxHeroVelocityX": 50,
+      "_entitiesTypeComment": "options include cloud, enemy, static, boundary, background",
+      "genericEntities": [
+        {
+          "type": "cloud",
+          "startX": 234.0,
+          "startY": 0.1,
+          "horizontalVelocity": -20.2,
+          "_imageComment": "This is an optional field. A suitable default will be selected if it is not provided.",
+          "image": "cloud_1.png"
+        }
+      ],
+      "hero":     {
+        "type": "hero",
+        "startX": 150.0,
+        "startY": 300.0,
+        "_sizeComment": "options include small, medium, large. If not specified this field will default to medium",
+        "size": "large",
+        "image": "ch_stand2.png"
+
+      },
+      "squarecat": {
+        "type": "squarecat",
+        "heroX": 150.0,
+        "heroY": 300.0,
+        "height": 20.0,
+        "image": "squarecat.png"
+      },
+      "finish": {
+        "type": "finish",
+        "posX": 1200.0,
+        "posY": 520.0,
+        "height": 80.0,
+        "width": 40
+      }
+    }
+  ]
+}

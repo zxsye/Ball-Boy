@@ -1,6 +1,5 @@
 package ballboy.model.entities.behaviour;
 
-import ballboy.model.Prototype;
 import ballboy.model.entities.DynamicEntity;
 
 /**
@@ -13,7 +12,6 @@ public class PassiveEntityBehaviourStrategy implements BehaviourStrategy {
     public void behave(
             DynamicEntity entity,
             double frameDurationMilli) {
-        return;
     }
 
     @Override

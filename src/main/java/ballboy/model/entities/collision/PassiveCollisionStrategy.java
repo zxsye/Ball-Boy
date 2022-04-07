@@ -1,8 +1,6 @@
 package ballboy.model.entities.collision;
 
 import ballboy.model.Entity;
-import ballboy.model.Prototype;
-import ballboy.model.entities.behaviour.PassiveEntityBehaviourStrategy;
 
 /*
  * A passive collision strategy that does nothing.

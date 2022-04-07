@@ -1,7 +1,6 @@
 package ballboy.model;
 
 import ballboy.model.entities.utilities.AxisAlignedBoundingBox;
-import ballboy.model.entities.utilities.EntityListener;
 import ballboy.model.entities.utilities.EntityNotifier;
 import ballboy.model.entities.utilities.Vector2D;
 import javafx.scene.image.Image;

@@ -1,14 +1,12 @@
 package ballboy.model.entities;
 
 import ballboy.model.Entity;
-import ballboy.model.Prototype;
 import ballboy.model.entities.utilities.AxisAlignedBoundingBox;
 import ballboy.model.entities.utilities.EntityNotifier;
 import ballboy.model.entities.utilities.ProjectileKinematicsUtil;
 import ballboy.model.entities.utilities.Vector2D;
 import javafx.scene.image.Image;
 
-import javax.naming.ldap.Control;
 import java.util.Optional;
 
 /**

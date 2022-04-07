@@ -2,11 +2,11 @@ package ballboy.model.entities.collision;
 
 import ballboy.model.Entity;
 import ballboy.model.Level;
-import ballboy.model.Prototype;
 import ballboy.model.entities.utilities.EntityNotifier;
 
 /**
  * Collision logic for enemies.
+ * - handles collision with hero AND squarecat (dies)
  */
 public class EnemyCollisionStrategy implements CollisionStrategy {
     private final Level level;

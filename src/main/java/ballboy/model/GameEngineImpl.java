@@ -91,17 +91,42 @@ public class GameEngineImpl implements GameEngine {
                 this.totalScore);
     }
 
-    public void setGameState(GameEngineMemento memento) {
-        // Load levels
-        for (Memento m : memento.getLevelList()) {
-            m.restore();
-        }
-        this.levelIndex = memento.getLevelIndex();
-        this.level = this.levelList.get(this.levelIndex);
-        this.totalScore = memento.getTotalScore();
-    }
 
     public boolean isGameFinish() {
         return isGameFinish;
+    }
+
+    public static class GameEngineMemento implements Memento {
+
+        private final GameEngineImpl gameEngine;
+        private final List<Memento> levelList;
+        private final Integer levelIndex;
+        private final Integer totalScore;
+
+
+        public GameEngineMemento(GameEngineImpl gameEngine,
+                                 List<Memento> levelList,
+                                 Integer levelIndex,
+                                 Integer totalScore) {
+
+            this.gameEngine = gameEngine;
+            this.levelList = levelList;
+            this.levelIndex = levelIndex;
+            this.totalScore = totalScore;
+        }
+
+        /**
+         * Restore saved gamestate to the attached GameEngine
+         */
+        @Override
+        public void restore() {
+            // Load levels
+            for (Memento m : this.levelList) {
+                m.restore();
+            }
+            gameEngine.levelIndex = this.levelIndex;
+            gameEngine.level = gameEngine.levelList.get(this.levelIndex);
+            gameEngine.totalScore = this.totalScore;
+        }
     }
 }

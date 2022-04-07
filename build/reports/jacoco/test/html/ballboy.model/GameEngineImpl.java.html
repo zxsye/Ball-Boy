@@ -81,28 +81,53 @@ public class GameEngineImpl implements GameEngine {
     }
 
     public Memento saveGameState() {
-<span class="nc" id="L84">        List&lt;Memento&gt; levelMementoList = new ArrayList&lt;&gt;();</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">        for (Level l : this.levelList) {</span>
-<span class="nc" id="L86">            levelMementoList.add(l.saveLevelState());</span>
-<span class="nc" id="L87">        }</span>
-<span class="nc" id="L88">        return new GameEngineMemento(this,</span>
+<span class="fc" id="L84">        List&lt;Memento&gt; levelMementoList = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        for (Level l : this.levelList) {</span>
+<span class="fc" id="L86">            levelMementoList.add(l.saveLevelState());</span>
+<span class="fc" id="L87">        }</span>
+<span class="fc" id="L88">        return new GameEngineMemento(this,</span>
                 levelMementoList,
-<span class="nc" id="L90">                this.levelIndex,</span>
-<span class="nc" id="L91">                this.totalScore);</span>
+<span class="fc" id="L90">                this.levelIndex,</span>
+<span class="fc" id="L91">                this.totalScore);</span>
     }
 
-    public void setGameState(GameEngineMemento memento) {
-        // Load levels
-<span class="nc bnc" id="L96" title="All 2 branches missed.">        for (Memento m : memento.getLevelList()) {</span>
-<span class="nc" id="L97">            m.restore();</span>
-<span class="nc" id="L98">        }</span>
-<span class="nc" id="L99">        this.levelIndex = memento.getLevelIndex();</span>
-<span class="nc" id="L100">        this.level = this.levelList.get(this.levelIndex);</span>
-<span class="nc" id="L101">        this.totalScore = memento.getTotalScore();</span>
-<span class="nc" id="L102">    }</span>
 
     public boolean isGameFinish() {
-<span class="fc" id="L105">        return isGameFinish;</span>
+<span class="fc" id="L96">        return isGameFinish;</span>
+    }
+
+    public static class GameEngineMemento implements Memento {
+
+        private final GameEngineImpl gameEngine;
+        private final List&lt;Memento&gt; levelList;
+        private final Integer levelIndex;
+        private final Integer totalScore;
+
+
+        public GameEngineMemento(GameEngineImpl gameEngine,
+                                 List&lt;Memento&gt; levelList,
+                                 Integer levelIndex,
+<span class="fc" id="L110">                                 Integer totalScore) {</span>
+
+<span class="fc" id="L112">            this.gameEngine = gameEngine;</span>
+<span class="fc" id="L113">            this.levelList = levelList;</span>
+<span class="fc" id="L114">            this.levelIndex = levelIndex;</span>
+<span class="fc" id="L115">            this.totalScore = totalScore;</span>
+<span class="fc" id="L116">        }</span>
+
+        /**
+         * Restore saved gamestate to the attached GameEngine
+         */
+        @Override
+        public void restore() {
+            // Load levels
+<span class="fc bfc" id="L124" title="All 2 branches covered.">            for (Memento m : this.levelList) {</span>
+<span class="fc" id="L125">                m.restore();</span>
+<span class="fc" id="L126">            }</span>
+<span class="fc" id="L127">            gameEngine.levelIndex = this.levelIndex;</span>
+<span class="fc" id="L128">            gameEngine.level = gameEngine.levelList.get(this.levelIndex);</span>
+<span class="fc" id="L129">            gameEngine.totalScore = this.totalScore;</span>
+<span class="fc" id="L130">        }</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

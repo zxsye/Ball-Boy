@@ -2,7 +2,6 @@ package ballboy.model.entities.collision;
 
 import ballboy.model.Entity;
 import ballboy.model.Level;
-import ballboy.model.Prototype;
 
 /**
  * Non-physical collision behaviour for the hero. This is delegated to by the

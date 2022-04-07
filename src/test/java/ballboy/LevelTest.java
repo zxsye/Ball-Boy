@@ -16,10 +16,7 @@ import javafx.scene.paint.Color;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -100,6 +97,7 @@ public class LevelTest {
         ge = new GameEngineImpl(levelList, 0);
 
     }
+
 
     @Test
     void badConfig() {
@@ -580,7 +578,7 @@ public class LevelTest {
 
         for (int i = 0; i < 200; i++) {
             level.update();
-            System.out.println(enemy.getVelocity().getX());
+
         }
 
         // After colliding: should be moving in reverse direction
@@ -589,20 +587,6 @@ public class LevelTest {
 
 
     // Features
-
-    @Test
-    void checkSaveState() {
-        Memento levelMemento = level.saveLevelState();
-        double oldHeroY = level.getHeroY();
-
-        for (int i = 0; i < 80; i++) {
-            level.update();
-        }
-        assertNotEquals(oldHeroY, level.getHeroY());
-        // Restore
-        levelMemento.restore();
-        assertEquals(oldHeroY, level.getHeroY());
-    }
 
     @Test
     void moveLeftRight() {
@@ -703,6 +687,23 @@ public class LevelTest {
         assertEquals("Total Score: 100\n", ge.getTotalScoreAsString());
     }
 
+    @Test
+    @Order(1)
+    void savingGame() {
+        setup("configSimple.json");
+        double heroY = ge.getCurrentLevel().getHeroY();
+
+        Memento memento = ge.saveGameState();
+        for (int i = 0; i < 100; i++) {
+            ge.tick();
+        }
+        assertNotEquals(heroY, ge.getCurrentLevel().getHeroY());
+
+        memento.restore();
+        assertEquals(heroY, ge.getCurrentLevel().getHeroY());
+    }
+
+
     /**
      * Check is GameWindow can be successfully opened and run
      */
@@ -710,6 +711,6 @@ public class LevelTest {
     void GameWindow() {
         GameCaretaker gct = new GameCaretaker(ge);
         GameWindow gw = new GameWindow(ge, gct, 400,400, frameDurationMilli);
-        gw.run();
+        assertDoesNotThrow(()->gw.run());
     }
 }

@@ -9,7 +9,7 @@ import ballboy.model.entities.utilities.Vector2D;
 /**
  * An entity with motion.
  */
-public abstract class DynamicEntity implements Entity, EntityNotifier, Prototype {
+public abstract class DynamicEntity implements Entity, EntityNotifier {
 
     /**
      * @param entity The entity which a collision is checked against.

@@ -7,36 +7,37 @@ import ballboy.model.entities.utilities.EntityNotifier;
 
 /**
  * Collision logic for enemies.
+ * - handles collision with hero AND squarecat (dies)
  */
 public class EnemyCollisionStrategy implements CollisionStrategy {
     private final Level level;
     private final String colour;
 
-<span class="fc" id="L15">    public EnemyCollisionStrategy(Level level, String colour) {</span>
-<span class="fc" id="L16">        this.level = level;</span>
-<span class="fc" id="L17">        this.colour = colour;</span>
-<span class="fc" id="L18">    }</span>
+<span class="fc" id="L16">    public EnemyCollisionStrategy(Level level, String colour) {</span>
+<span class="fc" id="L17">        this.level = level;</span>
+<span class="fc" id="L18">        this.colour = colour;</span>
+<span class="fc" id="L19">    }</span>
 
     @Override
     public void collideWith(
             Entity enemy,
             Entity hitEntity) {
 
-<span class="fc bfc" id="L25" title="All 2 branches covered.">        if (level.isHero(hitEntity)) {</span>
-<span class="fc" id="L26">            level.resetHero();</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        if (level.isHero(hitEntity)) {</span>
+<span class="fc" id="L27">            level.resetHero();</span>
 
-<span class="fc bfc" id="L28" title="All 2 branches covered.">        } else if (level.isSquarecat(hitEntity)) {</span>
-<span class="fc" id="L29">            EntityNotifier notifier = enemy.getNotifier();</span>
-<span class="pc bpc" id="L30" title="1 of 2 branches missed.">            if (notifier != null) {</span>
-<span class="fc" id="L31">                notifier.notifyAllListeners(colour, 100);</span>
+<span class="fc bfc" id="L29" title="All 2 branches covered.">        } else if (level.isSquarecat(hitEntity)) {</span>
+<span class="fc" id="L30">            EntityNotifier notifier = enemy.getNotifier();</span>
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">            if (notifier != null) {</span>
+<span class="fc" id="L32">                notifier.notifyAllListeners(colour, 100);</span>
             }
-<span class="fc" id="L33">            level.queueDeleteEntity(enemy);</span>
+<span class="fc" id="L34">            level.queueDeleteEntity(enemy);</span>
         }
-<span class="fc" id="L35">    }</span>
+<span class="fc" id="L36">    }</span>
 
     @Override
     public EnemyCollisionStrategy copy() {
-<span class="fc" id="L39">        return new EnemyCollisionStrategy(level, this.colour);</span>
+<span class="nc" id="L40">        return new EnemyCollisionStrategy(level, this.colour);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

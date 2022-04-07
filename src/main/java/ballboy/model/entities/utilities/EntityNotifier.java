@@ -1,7 +1,5 @@
 package ballboy.model.entities.utilities;
 
-import java.util.Map;
-
 /**
  * An Entity class should implement this interface. Notifies listeners of
  * any updates by calling the EntityListener methods.

@@ -7,7 +7,7 @@ package ballboy.model;
  */
 public interface Memento {
     /**
-     * Restore saved gamestate to the attached GameEngine
+     * Restore saved gamestate of the stored originator
      */
     void restore();
 }

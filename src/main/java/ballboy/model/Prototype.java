@@ -5,5 +5,10 @@ package ballboy.model;
  * be deep copied.
  */
 public interface Prototype {
+
+    /**
+     *
+     * @return A deep copy of this instance
+     */
     Prototype copy();
 }

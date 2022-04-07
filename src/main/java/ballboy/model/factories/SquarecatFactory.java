@@ -6,7 +6,6 @@ import ballboy.model.Level;
 import ballboy.model.entities.DynamicEntityImpl;
 import ballboy.model.entities.behaviour.*;
 import ballboy.model.entities.collision.CollisionStrategy;
-import ballboy.model.entities.collision.EnemyCollisionStrategy;
 import ballboy.model.entities.collision.PassiveCollisionStrategy;
 import ballboy.model.entities.utilities.*;
 import javafx.scene.image.Image;
@@ -14,10 +13,20 @@ import org.json.simple.JSONObject;
 
 import java.util.Optional;
 
+/**
+ * Responsible for creating a squarecat based on parameters
+ * in a configuration JSON object.
+ */
 public class SquarecatFactory implements EntityFactory {
 
     private static final double RADIUS = 30;
 
+    /**
+     *
+     * @param level - Level that the squarecat belongs to
+     * @param config - configuration for squarecat entity
+     * @return squarecat
+     */
     @Override
     public Entity createEntity(
             Level level,
@@ -66,8 +75,6 @@ public class SquarecatFactory implements EntityFactory {
             );
 
         } catch (Exception e) {
-//            System.out.println("bovey");
-//            e.printStackTrace();
             throw new ConfigurationParseException(
                     String.format("Invalid Squarecat entity configuration | %s | %s", config, e));
         }

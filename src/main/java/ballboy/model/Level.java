@@ -150,9 +150,21 @@ public interface Level {
      */
     EntityListener getListener();
 
+    /**
+     *
+     * @return String representing the score of this level in terms of RED, BLUE, and GREEN scores — corresponding to the colour of the enemies killed.
+     */
     String getScoreString();
 
+    /**
+     *
+     * @return The sum of the current individual coloured scores
+     */
     Integer getTotalScore();
 
+    /**
+     * Save the state of the current level.
+     * @return Memento representing current state.
+     */
     Memento saveLevelState();
 }

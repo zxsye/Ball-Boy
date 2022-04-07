@@ -1,7 +1,6 @@
 package ballboy.model.levels;
 
 import ballboy.model.Level;
-import ballboy.model.Prototype;
 import ballboy.model.entities.DynamicEntity;
 import ballboy.model.entities.StaticEntity;
 

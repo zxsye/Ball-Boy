@@ -14,49 +14,59 @@ import org.json.simple.JSONObject;
 
 import java.util.Optional;
 
-<span class="fc" id="L17">public class SquarecatFactory implements EntityFactory {</span>
+/**
+ * Responsible for creating a squarecat based on parameters
+ * in a configuration JSON object.
+ */
+<span class="fc" id="L21">public class SquarecatFactory implements EntityFactory {</span>
 
     private static final double RADIUS = 30;
 
+    /**
+     *
+     * @param level - Level that the squarecat belongs to
+     * @param config - configuration for squarecat entity
+     * @return squarecat
+     */
     @Override
     public Entity createEntity(
             Level level,
             JSONObject config) {
         try {
-<span class="fc" id="L26">            double heroX = ((Number) config.get(&quot;heroX&quot;)).doubleValue();</span>
-<span class="fc" id="L27">            double heroY = ((Number) config.get(&quot;heroY&quot;)).doubleValue();</span>
+<span class="fc" id="L36">            double heroX = ((Number) config.get(&quot;heroX&quot;)).doubleValue();</span>
+<span class="fc" id="L37">            double heroY = ((Number) config.get(&quot;heroY&quot;)).doubleValue();</span>
 //            double RADIUS = ((Number) config.get(&quot;RADIUS&quot;)).doubleValue();
 
-<span class="fc" id="L30">            double startX = heroX - RADIUS;</span>
-<span class="fc" id="L31">            double startY = heroY - RADIUS;</span>
+<span class="fc" id="L40">            double startX = heroX - RADIUS;</span>
+<span class="fc" id="L41">            double startY = heroY - RADIUS;</span>
 
 //            double startVelocityX = ((Number) config.get(&quot;startVelocityX&quot;)).doubleValue();
-<span class="fc" id="L34">            double startVelocityX = 10.0;</span>
+<span class="fc" id="L44">            double startVelocityX = 10.0;</span>
 //            String behaviour = (String) config.get(&quot;behaviour&quot;);
 
-<span class="fc" id="L37">            Optional&lt;Double&gt; height = Optional.ofNullable(((Number) config.get(&quot;height&quot;))).map(Number::doubleValue);</span>
+<span class="fc" id="L47">            Optional&lt;Double&gt; height = Optional.ofNullable(((Number) config.get(&quot;height&quot;))).map(Number::doubleValue);</span>
 
-<span class="fc" id="L39">            String imageName = (String) config.get(&quot;image&quot;);</span>
+<span class="fc" id="L49">            String imageName = (String) config.get(&quot;image&quot;);</span>
 
-<span class="fc" id="L41">            Vector2D startingPosition = new Vector2D(startX, startY);</span>
+<span class="fc" id="L51">            Vector2D startingPosition = new Vector2D(startX, startY);</span>
 
-<span class="fc" id="L43">            KinematicState kinematicState = new KinematicStateImpl.KinematicStateBuilder()</span>
-<span class="fc" id="L44">                    .setPosition(startingPosition)</span>
-<span class="fc" id="L45">                    .setHorizontalVelocity(startVelocityX)</span>
-<span class="fc" id="L46">                    .build();</span>
+<span class="fc" id="L53">            KinematicState kinematicState = new KinematicStateImpl.KinematicStateBuilder()</span>
+<span class="fc" id="L54">                    .setPosition(startingPosition)</span>
+<span class="fc" id="L55">                    .setHorizontalVelocity(startVelocityX)</span>
+<span class="fc" id="L56">                    .build();</span>
 
-<span class="fc" id="L48">            Image image = new Image(imageName);</span>
+<span class="fc" id="L58">            Image image = new Image(imageName);</span>
 
-<span class="fc" id="L50">            AxisAlignedBoundingBox volume = new AxisAlignedBoundingBoxImpl(</span>
+<span class="fc" id="L60">            AxisAlignedBoundingBox volume = new AxisAlignedBoundingBoxImpl(</span>
                     startingPosition,
-<span class="fc" id="L52">                    height.orElse(image.getHeight()),</span>
-<span class="fc" id="L53">                    height.map(h -&gt; h * image.getWidth() / image.getHeight()).orElse(image.getWidth())</span>
+<span class="fc" id="L62">                    height.orElse(image.getHeight()),</span>
+<span class="fc" id="L63">                    height.map(h -&gt; h * image.getWidth() / image.getHeight()).orElse(image.getWidth())</span>
             );
 
-<span class="fc" id="L56">            CollisionStrategy collisionStrategy = new PassiveCollisionStrategy();</span>
-<span class="fc" id="L57">            BehaviourStrategy behaviourStrategy = new SquarecatBehaviourStrategy(level, RADIUS);</span>
+<span class="fc" id="L66">            CollisionStrategy collisionStrategy = new PassiveCollisionStrategy();</span>
+<span class="fc" id="L67">            BehaviourStrategy behaviourStrategy = new SquarecatBehaviourStrategy(level, RADIUS);</span>
 
-<span class="fc" id="L59">            return new DynamicEntityImpl(</span>
+<span class="fc" id="L69">            return new DynamicEntityImpl(</span>
                     kinematicState,
                     volume,
                     Entity.Layer.FOREGROUND,
@@ -65,11 +75,11 @@ import java.util.Optional;
                     behaviourStrategy
             );
 
-<span class="fc" id="L68">        } catch (Exception e) {</span>
+<span class="fc" id="L78">        } catch (Exception e) {</span>
 //            System.out.println(&quot;bovey&quot;);
 //            e.printStackTrace();
-<span class="fc" id="L71">            throw new ConfigurationParseException(</span>
-<span class="fc" id="L72">                    String.format(&quot;Invalid Squarecat entity configuration | %s | %s&quot;, config, e));</span>
+<span class="fc" id="L81">            throw new ConfigurationParseException(</span>
+<span class="fc" id="L82">                    String.format(&quot;Invalid Squarecat entity configuration | %s | %s&quot;, config, e));</span>
         }
     }
 }

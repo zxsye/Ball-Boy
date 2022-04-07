@@ -1,7 +1,6 @@
 package ballboy.model.entities;
 
 import ballboy.model.Entity;
-import ballboy.model.Prototype;
 import ballboy.model.entities.utilities.AxisAlignedBoundingBox;
 import ballboy.model.entities.utilities.AxisAlignedBoundingBoxImpl;
 import ballboy.model.entities.utilities.EntityNotifier;
